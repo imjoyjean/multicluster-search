@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "webpack serve --config webpack.dev.js",
-    "build": "webpack --config webpack.prod.js",
+    "build": "BUILD_ENV=production webpack --config webpack.prod.js",
     "deploy": "npm run build && gh-pages -d dist"
   },
   "dependencies": {

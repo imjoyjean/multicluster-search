@@ -1,9 +1,11 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const ASSET_PATH = process.env.NODE_ENV === 'production' ? '/multicluster-search/' : '/';
+module.exports = (env, argv) => {
+  const isProduction = process.env.BUILD_ENV === 'production';
+  const ASSET_PATH = isProduction ? '/multicluster-search/' : '/';
 
-module.exports = {
+  return {
   entry: './src/index.tsx',
   output: {
     filename: '[name].[contenthash].js',
@@ -41,8 +43,9 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: './src/index.html',
-      base: process.env.NODE_ENV === 'production' ? '/multicluster-search/' : '/',
+      base: ASSET_PATH,
     }),
   ],
+};
 };
 
