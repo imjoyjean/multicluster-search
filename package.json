@@ -1,0 +1,38 @@
+{
+  "name": "multicluster-search",
+  "version": "1.0.0",
+  "description": "Search Experience Prototype - Nodes and Virtual Machines",
+  "homepage": "https://imjoyjean.github.io/multicluster-search",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/imjoyjean/multicluster-search.git"
+  },
+  "scripts": {
+    "start": "webpack serve --config webpack.dev.js",
+    "build": "webpack --config webpack.prod.js",
+    "deploy": "npm run build && gh-pages -d dist"
+  },
+  "dependencies": {
+    "@patternfly/react-core": "^5.4.1",
+    "@patternfly/react-icons": "^5.4.0",
+    "@patternfly/react-table": "^5.4.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "@types/node": "^22.7.5",
+    "css-loader": "^7.1.2",
+    "gh-pages": "^6.1.1",
+    "html-webpack-plugin": "^5.6.0",
+    "style-loader": "^4.0.0",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.6.2",
+    "webpack": "^5.95.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.1.0",
+    "webpack-merge": "^6.0.1"
+  }
+}
