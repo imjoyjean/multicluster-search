@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Link, useLocation } from 'react-router-dom';
+import { Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import {
   Page,
   Masthead,
@@ -79,12 +79,7 @@ export const App: React.FC = () => {
       isManagedSidebar
     >
       <Routes>
-        <Route path="/" element={
-          <PageSection>
-            <Title headingLevel="h1">Welcome to Search Experience Prototype</Title>
-            <p style={{ marginTop: '16px' }}>Select a page from the navigation to get started.</p>
-          </PageSection>
-        } />
+        <Route path="/" element={<Navigate to="/nodes" replace />} />
         <Route path="/nodes" element={<NodesPage />} />
         <Route path="/virtual-machines" element={<VirtualMachinesPage />} />
       </Routes>
