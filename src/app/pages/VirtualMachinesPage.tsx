@@ -1,5 +1,7 @@
 import React from 'react';
 import {
+  PageSection,
+  PageSectionVariants,
   Title,
   Button,
   Toolbar,
@@ -20,8 +22,6 @@ import {
   MenuList,
   MenuItem,
   Divider,
-  Card,
-  CardBody,
 } from '@patternfly/react-core';
 import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
 import { useSearchParams } from 'react-router-dom';
@@ -250,20 +250,15 @@ export const VirtualMachinesPage: React.FC = () => {
   };
 
   return (
-    <div style={{ 
-      height: '100vh',
-      boxSizing: 'border-box',
-      backgroundColor: 'var(--pf-t--global--background--color--primary--default)',
-      overflow: 'auto',
-      padding: 'var(--pf-t--global--spacer--lg)'
-    }}>
-      {/* Title */}
-      <div style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
+    <>
+      <PageSection variant={PageSectionVariants.light}>
         <Title headingLevel="h1" size="2xl">Virtual machines</Title>
-      </div>
+      </PageSection>
+      <PageSection variant={PageSectionVariants.light} padding={{ default: 'noPadding' }}>
+        <div style={{ padding: 'var(--pf-v5-global--spacer--md) var(--pf-v5-global--spacer--lg)' }}>
       
-      {/* Search Bar and Action Buttons Row */}
-      <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }} style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
+        {/* Search Bar and Action Buttons Row */}
+        <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }} style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>
         {/* Query Bar */}
         <FlexItem flex={{ default: 'flex_1' }} style={{ position: 'relative', maxWidth: '600px' }}>
           <div 
@@ -427,10 +422,10 @@ export const VirtualMachinesPage: React.FC = () => {
             </DropdownList>
           </Dropdown>
         </FlexItem>
-      </Flex>
-      
-      {/* Guided Filters */}
-      <Flex spaceItems={{ default: 'spaceItemsMd' }} style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }}>
+        </Flex>
+        
+        {/* Guided Filters */}
+        <Flex spaceItems={{ default: 'spaceItemsMd' }} style={{ marginBottom: 'var(--pf-v5-global--spacer--lg)' }}>
         <FlexItem>
           <Dropdown
             isOpen={isStatusFilterOpen}
@@ -493,10 +488,13 @@ export const VirtualMachinesPage: React.FC = () => {
             </DropdownList>
           </Dropdown>
         </FlexItem>
-      </Flex>
-
-      {/* Table */}
-      <Toolbar>
+        </Flex>
+        </div>
+      </PageSection>
+      
+      <PageSection variant={PageSectionVariants.light} padding={{ default: 'noPadding' }}>
+        {/* Table */}
+        <Toolbar>
         <ToolbarContent>
           <ToolbarItem variant="pagination" align={{ default: 'alignRight' }}>
             <Pagination
@@ -560,8 +558,9 @@ export const VirtualMachinesPage: React.FC = () => {
             />
           </ToolbarItem>
         </ToolbarContent>
-      </Toolbar>
-    </div>
+        </Toolbar>
+      </PageSection>
+    </>
   );
 };
 

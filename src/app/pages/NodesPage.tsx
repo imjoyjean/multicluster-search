@@ -1,5 +1,7 @@
 import React from 'react';
 import {
+  PageSection,
+  PageSectionVariants,
   Title,
   Button,
   Toolbar,
@@ -413,25 +415,20 @@ export const NodesPage: React.FC = () => {
   };
 
   return (
-    <div style={{ 
-      height: '100vh',
-      boxSizing: 'border-box',
-      backgroundColor: 'var(--pf-t--global--background--color--primary--default)',
-      overflow: 'auto',
-      padding: 'var(--pf-t--global--spacer--lg)'
-    }}>
-      {/* Title */}
-      <div style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
+    <>
+      <PageSection variant={PageSectionVariants.light}>
         <Title headingLevel="h1" size="2xl">Nodes</Title>
-      </div>
+      </PageSection>
+      <PageSection variant={PageSectionVariants.light} padding={{ default: 'noPadding' }}>
+        <div style={{ padding: 'var(--pf-v5-global--spacer--md) var(--pf-v5-global--spacer--lg)' }}>
       
-      {/* Search Bar */}
-      <div style={{ 
-        marginBottom: 'var(--pf-t--global--spacer--md)', 
-        position: 'relative',
-        width: '100%',
-        maxWidth: '600px'
-      }}>
+        {/* Search Bar */}
+        <div style={{ 
+          marginBottom: 'var(--pf-v5-global--spacer--md)', 
+          position: 'relative',
+          width: '100%',
+          maxWidth: '600px'
+        }}>
         <div 
           ref={searchContainerRef}
           onClick={handleSearchContainerClick}
@@ -562,10 +559,10 @@ export const NodesPage: React.FC = () => {
             </Menu>
           </div>
         )}
-      </div>
-      
-      {/* Guided Filters */}
-      <Flex spaceItems={{ default: 'spaceItemsMd' }} style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }}>
+        </div>
+        
+        {/* Guided Filters */}
+        <Flex spaceItems={{ default: 'spaceItemsMd' }} style={{ marginBottom: 'var(--pf-v5-global--spacer--lg)' }}>
         <FlexItem>
           <Dropdown
             isOpen={isClusterFilterOpen}
@@ -698,10 +695,13 @@ export const NodesPage: React.FC = () => {
             </DropdownList>
           </Dropdown>
         </FlexItem>
-      </Flex>
-
-      {/* Table */}
-      <Toolbar>
+        </Flex>
+        </div>
+      </PageSection>
+      
+      <PageSection variant={PageSectionVariants.light} padding={{ default: 'noPadding' }}>
+        {/* Table */}
+        <Toolbar>
         <ToolbarContent>
           <ToolbarItem variant="pagination" align={{ default: 'alignRight' }}>
             <Pagination
@@ -772,8 +772,9 @@ export const NodesPage: React.FC = () => {
             />
           </ToolbarItem>
         </ToolbarContent>
-      </Toolbar>
-    </div>
+        </Toolbar>
+      </PageSection>
+    </>
   );
 };
 
