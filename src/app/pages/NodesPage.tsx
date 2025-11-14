@@ -114,7 +114,7 @@ const generateMockNodes = (): Node[] => {
   }
   
   // Add some specific nodes with production-west cluster and default namespace
-  for (let i = 0; i < 15; i++) {
+  for (let i = 0; i < 4; i++) {
     const status = statuses[i % statuses.length];
     const roles = rolesList[i % rolesList.length];
     const instanceType = instanceTypes[i % instanceTypes.length];
