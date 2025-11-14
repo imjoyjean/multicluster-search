@@ -1259,11 +1259,11 @@ export const NodesPage: React.FC = () => {
             <Button key="save" variant="primary" onClick={handleSaveColumns}>
               Save
             </Button>,
-            <Button key="restore" variant="link" onClick={handleRestoreDefaults}>
-              Restore default columns
-            </Button>,
             <Button key="cancel" variant="link" onClick={handleCancelColumns}>
               Cancel
+            </Button>,
+            <Button key="restore" variant="link" onClick={handleRestoreDefaults}>
+              Restore default columns
             </Button>,
           ]}
         >
