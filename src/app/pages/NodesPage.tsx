@@ -419,11 +419,11 @@ export const NodesPage: React.FC = () => {
   return (
     <>
       <PageSection variant={PageSectionVariants.default} padding={{ default: 'noPadding' }}>
-        <div style={{ padding: 'var(--pf-v5-global--spacer--md) var(--pf-v5-global--spacer--lg) 0' }}>
+        <div style={{ 
+          backgroundColor: '#ffffff',
+          padding: 'var(--pf-v5-global--spacer--md) var(--pf-v5-global--spacer--lg)'
+        }}>
           <Title headingLevel="h1" size="xl" style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>Nodes</Title>
-        </div>
-      
-        <div style={{ padding: '0 var(--pf-v5-global--spacer--lg) var(--pf-v5-global--spacer--md)' }}>
       
         {/* Search Bar */}
         <div style={{ 
