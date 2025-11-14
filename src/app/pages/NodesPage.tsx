@@ -263,12 +263,16 @@ export const NodesPage: React.FC = () => {
       
       // Sync with filter dropdowns
       if (type === 'cluster' && !clusterFilter.includes(value)) {
+        console.log('🔄 Syncing cluster filter:', value, 'Current filters:', clusterFilter);
         setClusterFilter([...clusterFilter, value]);
       } else if (type === 'namespace' && !namespaceFilter.includes(value)) {
+        console.log('🔄 Syncing namespace filter:', value);
         setNamespaceFilter([...namespaceFilter, value]);
       } else if (type === 'status' && !statusFilter.includes(value)) {
+        console.log('🔄 Syncing status filter:', value);
         setStatusFilter([...statusFilter, value]);
       } else if (type === 'role' && !roleFilter.includes(value)) {
+        console.log('🔄 Syncing role filter:', value);
         setRoleFilter([...roleFilter, value]);
       }
     }
