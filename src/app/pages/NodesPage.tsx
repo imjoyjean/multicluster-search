@@ -128,6 +128,7 @@ export const NodesPage: React.FC = () => {
   const [isAutocompleteOpen, setIsAutocompleteOpen] = React.useState(false);
   const queryInputRef = React.useRef<HTMLInputElement>(null);
   const searchContainerRef = React.useRef<HTMLDivElement>(null);
+  const searchWrapperRef = React.useRef<HTMLDivElement>(null);
   
   // Multi-select filter states
   const [clusterFilter, setClusterFilter] = React.useState<string[]>([]);
@@ -229,7 +230,7 @@ export const NodesPage: React.FC = () => {
   // Close autocomplete when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as HTMLElement)) {
+      if (searchWrapperRef.current && !searchWrapperRef.current.contains(event.target as HTMLElement)) {
         setIsAutocompleteOpen(false);
       }
     };
@@ -634,12 +635,15 @@ export const NodesPage: React.FC = () => {
           <Title headingLevel="h1" size="xl" style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>Nodes</Title>
       
         {/* Search Bar */}
-        <div style={{ 
-          marginBottom: 'var(--pf-v5-global--spacer--md)', 
-          position: 'relative',
-          width: '100%',
-          maxWidth: '800px'
-        }}>
+        <div 
+          ref={searchWrapperRef}
+          style={{ 
+            marginBottom: 'var(--pf-v5-global--spacer--md)', 
+            position: 'relative',
+            width: '100%',
+            maxWidth: '800px'
+          }}
+        >
           {/* Custom Search Input with Chips Inside */}
           <div 
             ref={searchContainerRef}

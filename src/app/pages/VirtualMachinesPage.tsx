@@ -69,6 +69,7 @@ export const VirtualMachinesPage: React.FC = () => {
   const [isAutocompleteOpen, setIsAutocompleteOpen] = React.useState(false);
   const queryInputRef = React.useRef<HTMLInputElement>(null);
   const searchContainerRef = React.useRef<HTMLDivElement>(null);
+  const searchWrapperRef = React.useRef<HTMLDivElement>(null);
   
   // Filter states
   const [statusFilter, setStatusFilter] = React.useState<string>(searchParams.get('status') || 'All');
@@ -105,7 +106,7 @@ export const VirtualMachinesPage: React.FC = () => {
   // Close autocomplete when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as HTMLElement)) {
+      if (searchWrapperRef.current && !searchWrapperRef.current.contains(event.target as HTMLElement)) {
         setIsAutocompleteOpen(false);
       }
     };
@@ -372,7 +373,8 @@ export const VirtualMachinesPage: React.FC = () => {
         {/* Search Bar and Action Buttons Row */}
         <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }} style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>
         {/* Query Bar */}
-        <FlexItem flex={{ default: 'flex_1' }} style={{ position: 'relative', maxWidth: '800px' }}>
+        <FlexItem flex={{ default: 'flex_1' }}>
+          <div ref={searchWrapperRef} style={{ position: 'relative', maxWidth: '800px' }}>
           {/* Custom Search Input with Chips Inside */}
           <div 
             ref={searchContainerRef}
@@ -544,6 +546,7 @@ export const VirtualMachinesPage: React.FC = () => {
               </Menu>
             </div>
           )}
+          </div>
         </FlexItem>
         
         {/* Action Buttons */}
