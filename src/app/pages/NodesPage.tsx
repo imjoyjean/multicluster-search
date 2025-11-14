@@ -207,13 +207,19 @@ export const NodesPage: React.FC = () => {
     const sections: Array<{ title: string; items: Array<{ text: string; displayText: string }> }> = [];
     
     // Check if user is typing a filter prefix
-    const filterPrefixMatch = queryText.match(/^(cluster|namespace|status|role):/i);
+    const filterPrefixMatch = queryText.match(/^(name|cluster|namespace|status|role|pods|memory|cpu|filesystem|instancetype|created):/i);
     
     if (filterPrefixMatch) {
       const filterType = filterPrefixMatch[1].toLowerCase();
       const afterColon = queryText.substring(filterType.length + 1).toLowerCase();
       
-      if (filterType === 'cluster') {
+      if (filterType === 'name') {
+        const matches = mockNodes
+          .filter(node => node.name.toLowerCase().includes(afterColon))
+          .slice(0, 5)
+          .map(node => ({ text: `name:${node.name}`, displayText: node.name }));
+        if (matches.length > 0) sections.push({ title: 'Name', items: matches });
+      } else if (filterType === 'cluster') {
         const matches = uniqueClusters
           .filter(cluster => cluster.toLowerCase().includes(afterColon))
           .map(cluster => ({ text: `cluster:${cluster}`, displayText: cluster }));
@@ -233,27 +239,23 @@ export const NodesPage: React.FC = () => {
           .filter(role => role.toLowerCase().includes(afterColon))
           .map(role => ({ text: `role:${role}`, displayText: role }));
         if (matches.length > 0) sections.push({ title: 'Role', items: matches });
+      } else if (filterType === 'instancetype') {
+        const instanceTypes = Array.from(new Set(mockNodes.map(n => n.instanceType)));
+        const matches = instanceTypes
+          .filter(type => type.toLowerCase().includes(afterColon))
+          .map(type => ({ text: `instanceType:${type}`, displayText: type }));
+        if (matches.length > 0) sections.push({ title: 'Instance Type', items: matches });
       }
     } else {
-      // Regular search
-      if ('cluster'.includes(searchLower)) {
-        const matches = uniqueClusters.slice(0, 5).map(cluster => ({ text: `cluster:${cluster}`, displayText: cluster }));
-        if (matches.length > 0) sections.push({ title: 'Cluster', items: matches });
-      }
+      // Regular search - show suggestions for searchable fields
+      const keywords = ['name:', 'cluster:', 'namespace:', 'status:', 'role:', 'instanceType:', 'pods:', 'memory:', 'cpu:', 'filesystem:', 'created:'];
+      const matchingKeywords = keywords.filter(kw => kw.toLowerCase().includes(searchLower));
       
-      if ('namespace'.includes(searchLower)) {
-        const matches = uniqueNamespaces.slice(0, 5).map(ns => ({ text: `namespace:${ns}`, displayText: ns }));
-        if (matches.length > 0) sections.push({ title: 'Namespace', items: matches });
-      }
-      
-      if ('status'.includes(searchLower)) {
-        const matches = uniqueStatuses.slice(0, 5).map(status => ({ text: `status:${status}`, displayText: status }));
-        if (matches.length > 0) sections.push({ title: 'Status', items: matches });
-      }
-      
-      if ('role'.includes(searchLower)) {
-        const matches = uniqueRoles.slice(0, 5).map(role => ({ text: `role:${role}`, displayText: role }));
-        if (matches.length > 0) sections.push({ title: 'Role', items: matches });
+      if (matchingKeywords.length > 0) {
+        sections.push({ 
+          title: 'Search by field', 
+          items: matchingKeywords.map(kw => ({ text: kw, displayText: kw }))
+        });
       }
       
       // Node name matches
@@ -263,32 +265,36 @@ export const NodesPage: React.FC = () => {
         .map(node => ({ text: node.name, displayText: node.name }));
       if (nodeMatches.length > 0) sections.push({ title: 'Nodes', items: nodeMatches });
       
-      // Value matches
+      // Value matches for filters
       const clusterMatches = uniqueClusters
         .filter(c => c.toLowerCase().includes(searchLower))
+        .slice(0, 5)
         .map(c => ({ text: `cluster:${c}`, displayText: c }));
-      if (clusterMatches.length > 0 && !sections.find(s => s.title === 'Cluster')) {
+      if (clusterMatches.length > 0) {
         sections.push({ title: 'Cluster', items: clusterMatches });
       }
       
       const namespaceMatches = uniqueNamespaces
         .filter(ns => ns.toLowerCase().includes(searchLower))
+        .slice(0, 5)
         .map(ns => ({ text: `namespace:${ns}`, displayText: ns }));
-      if (namespaceMatches.length > 0 && !sections.find(s => s.title === 'Namespace')) {
+      if (namespaceMatches.length > 0) {
         sections.push({ title: 'Namespace', items: namespaceMatches });
       }
       
       const statusMatches = uniqueStatuses
         .filter(s => s.toLowerCase().includes(searchLower))
+        .slice(0, 5)
         .map(s => ({ text: `status:${s}`, displayText: s }));
-      if (statusMatches.length > 0 && !sections.find(s => s.title === 'Status')) {
+      if (statusMatches.length > 0) {
         sections.push({ title: 'Status', items: statusMatches });
       }
       
       const roleMatches = uniqueRoles
         .filter(r => r.toLowerCase().includes(searchLower))
+        .slice(0, 5)
         .map(r => ({ text: `role:${r}`, displayText: r }));
-      if (roleMatches.length > 0 && !sections.find(s => s.title === 'Role')) {
+      if (roleMatches.length > 0) {
         sections.push({ title: 'Role', items: roleMatches });
       }
     }
@@ -296,47 +302,98 @@ export const NodesPage: React.FC = () => {
     return { sections, hasResults: sections.length > 0 };
   }, [queryText, uniqueClusters, uniqueNamespaces, uniqueStatuses, uniqueRoles]);
 
-  // Filter nodes
+  // Filter nodes with AND logic for all filters
   const filteredNodes = React.useMemo(() => {
     return mockNodes.filter(node => {
-      // Check query text
-      let matchesQueryText = true;
+      // Collect all filter conditions
+      const conditions: boolean[] = [];
+      
+      // Process query chips (label:value pairs from filter dropdowns)
+      queryChips.forEach(chip => {
+        if (chip.type === 'cluster') {
+          conditions.push(node.cluster.toLowerCase() === chip.value.toLowerCase());
+        } else if (chip.type === 'namespace') {
+          conditions.push(node.namespace.toLowerCase() === chip.value.toLowerCase());
+        } else if (chip.type === 'status') {
+          conditions.push(node.status.toLowerCase() === chip.value.toLowerCase());
+        } else if (chip.type === 'role') {
+          conditions.push(node.roles.toLowerCase().includes(chip.value.toLowerCase()));
+        }
+      });
+      
+      // Process queryText for label:value patterns
       if (queryText) {
-        const labelValueMatch = queryText.match(/^(cluster|namespace|status|role):(.+)$/i);
+        // Extract all label:value patterns from queryText
+        const labelValueRegex = /(name|cluster|namespace|status|role|pods|memory|cpu|filesystem|instancetype|instanceType|created):([^\s]+)/gi;
+        const matches = [...queryText.matchAll(labelValueRegex)];
         
-        if (labelValueMatch) {
-          const [, label, value] = labelValueMatch;
-          const labelLower = label.toLowerCase();
-          const valueLower = value.toLowerCase();
-          
-          if (labelLower === 'cluster') {
-            matchesQueryText = node.cluster.toLowerCase().includes(valueLower);
-          } else if (labelLower === 'namespace') {
-            matchesQueryText = node.namespace.toLowerCase().includes(valueLower);
-          } else if (labelLower === 'status') {
-            matchesQueryText = node.status.toLowerCase().includes(valueLower);
-          } else if (labelLower === 'role') {
-            matchesQueryText = node.roles.toLowerCase().includes(valueLower);
-          }
+        if (matches.length > 0) {
+          // Apply each label:value filter with AND logic
+          matches.forEach(match => {
+            const label = match[1].toLowerCase();
+            const value = match[2].toLowerCase();
+            
+            if (label === 'name') {
+              conditions.push(node.name.toLowerCase().includes(value));
+            } else if (label === 'cluster') {
+              conditions.push(node.cluster.toLowerCase().includes(value));
+            } else if (label === 'namespace') {
+              conditions.push(node.namespace.toLowerCase().includes(value));
+            } else if (label === 'status') {
+              conditions.push(node.status.toLowerCase().includes(value));
+            } else if (label === 'role') {
+              conditions.push(node.roles.toLowerCase().includes(value));
+            } else if (label === 'pods') {
+              conditions.push(node.pods.toLowerCase().includes(value));
+            } else if (label === 'memory') {
+              conditions.push(node.memory.toLowerCase().includes(value));
+            } else if (label === 'cpu') {
+              conditions.push(node.cpu.toLowerCase().includes(value));
+            } else if (label === 'filesystem') {
+              conditions.push(node.filesystem.toLowerCase().includes(value));
+            } else if (label === 'instancetype') {
+              conditions.push(node.instanceType.toLowerCase().includes(value));
+            } else if (label === 'created') {
+              conditions.push(node.created.toLowerCase().includes(value));
+            }
+          });
         } else {
-          matchesQueryText = 
-            node.name.toLowerCase().includes(queryText.toLowerCase()) ||
-            node.cluster.toLowerCase().includes(queryText.toLowerCase()) ||
-            node.namespace.toLowerCase().includes(queryText.toLowerCase()) ||
-            node.status.toLowerCase().includes(queryText.toLowerCase()) ||
-            node.roles.toLowerCase().includes(queryText.toLowerCase());
+          // No label:value pattern, search across all fields with OR logic
+          const searchLower = queryText.toLowerCase();
+          const matchesAnyField = 
+            node.name.toLowerCase().includes(searchLower) ||
+            node.cluster.toLowerCase().includes(searchLower) ||
+            node.namespace.toLowerCase().includes(searchLower) ||
+            node.status.toLowerCase().includes(searchLower) ||
+            node.roles.toLowerCase().includes(searchLower) ||
+            node.pods.toLowerCase().includes(searchLower) ||
+            node.memory.toLowerCase().includes(searchLower) ||
+            node.cpu.toLowerCase().includes(searchLower) ||
+            node.filesystem.toLowerCase().includes(searchLower) ||
+            node.instanceType.toLowerCase().includes(searchLower) ||
+            node.created.toLowerCase().includes(searchLower);
+          conditions.push(matchesAnyField);
         }
       }
       
-      // Check filters
-      const matchesCluster = clusterFilter.length === 0 || clusterFilter.includes(node.cluster);
-      const matchesNamespace = namespaceFilter.length === 0 || namespaceFilter.includes(node.namespace);
-      const matchesStatus = statusFilter.length === 0 || statusFilter.includes(node.status);
-      const matchesRole = roleFilter.length === 0 || roleFilter.some(role => node.roles.includes(role));
+      // Apply dropdown filters (multi-select with OR within same type, AND across types)
+      if (clusterFilter.length > 0) {
+        conditions.push(clusterFilter.includes(node.cluster));
+      }
+      if (namespaceFilter.length > 0) {
+        conditions.push(namespaceFilter.includes(node.namespace));
+      }
+      if (statusFilter.length > 0) {
+        conditions.push(statusFilter.includes(node.status));
+      }
+      if (roleFilter.length > 0) {
+        conditions.push(roleFilter.some(role => node.roles.includes(role)));
+      }
       
-      return matchesQueryText && matchesCluster && matchesNamespace && matchesStatus && matchesRole;
+      // AND logic: all conditions must be true
+      return conditions.length === 0 || conditions.every(condition => condition);
     });
-  }, [queryText, clusterFilter, namespaceFilter, statusFilter, roleFilter]);
+  }, [queryText, queryChips, clusterFilter, namespaceFilter, statusFilter, roleFilter]);
 
   const paginatedNodes = React.useMemo(() => {
     const start = (page - 1) * perPage;
@@ -451,7 +508,7 @@ export const NodesPage: React.FC = () => {
             <input
               ref={queryInputRef}
               type="text"
-              placeholder={queryChips.length === 0 ? "Search by name or query (e.g., status:Ready cluster:production-east)" : ""}
+              placeholder={queryChips.length === 0 ? "Search by name or use filters (e.g., status:Ready cluster:production-east instanceType:m5.xlarge)" : ""}
               value={queryText}
               onChange={(e) => {
                 setQueryText(e.target.value);

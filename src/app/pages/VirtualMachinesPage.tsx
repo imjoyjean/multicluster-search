@@ -151,13 +151,19 @@ export const VirtualMachinesPage: React.FC = () => {
     const searchLower = queryText.toLowerCase();
     const sections: Array<{ title: string; items: Array<{ text: string; displayText: string }> }> = [];
     
-    const filterPrefixMatch = queryText.match(/^(status|os|cluster|namespace):/i);
+    const filterPrefixMatch = queryText.match(/^(name|status|os|cluster|namespace|cpu|memory|disk|ip):/i);
     
     if (filterPrefixMatch) {
       const filterType = filterPrefixMatch[1].toLowerCase();
       const afterColon = queryText.substring(filterType.length + 1).toLowerCase();
       
-      if (filterType === 'status') {
+      if (filterType === 'name') {
+        const matches = mockVMs
+          .filter(vm => vm.name.toLowerCase().includes(afterColon))
+          .slice(0, 5)
+          .map(vm => ({ text: `name:${vm.name}`, displayText: vm.name }));
+        if (matches.length > 0) sections.push({ title: 'Name', items: matches });
+      } else if (filterType === 'status') {
         const matches = availableStatuses.filter(s => s !== 'All' && s.toLowerCase().includes(afterColon))
           .map(status => ({ text: `status:${status}`, displayText: status }));
         if (matches.length > 0) sections.push({ title: 'Status', items: matches });
@@ -175,29 +181,15 @@ export const VirtualMachinesPage: React.FC = () => {
         if (matches.length > 0) sections.push({ title: 'Namespace', items: matches });
       }
     } else {
-      // Regular search
-      if ('status'.includes(searchLower)) {
-        const matches = availableStatuses.filter(s => s !== 'All').slice(0, 5)
-          .map(status => ({ text: `status:${status}`, displayText: status }));
-        if (matches.length > 0) sections.push({ title: 'Status', items: matches });
-      }
+      // Regular search - show suggestions for searchable fields
+      const keywords = ['name:', 'status:', 'os:', 'cluster:', 'namespace:', 'cpu:', 'memory:', 'disk:', 'ip:'];
+      const matchingKeywords = keywords.filter(kw => kw.toLowerCase().includes(searchLower));
       
-      if ('os'.includes(searchLower) || 'operating'.includes(searchLower)) {
-        const matches = availableOSs.filter(os => os !== 'All').slice(0, 5)
-          .map(os => ({ text: `os:${os}`, displayText: os }));
-        if (matches.length > 0) sections.push({ title: 'Operating System', items: matches });
-      }
-      
-      if ('cluster'.includes(searchLower)) {
-        const matches = availableClusters.slice(0, 5)
-          .map(cluster => ({ text: `cluster:${cluster}`, displayText: cluster }));
-        if (matches.length > 0) sections.push({ title: 'Cluster', items: matches });
-      }
-      
-      if ('namespace'.includes(searchLower)) {
-        const matches = availableNamespaces.slice(0, 5)
-          .map(namespace => ({ text: `namespace:${namespace}`, displayText: namespace }));
-        if (matches.length > 0) sections.push({ title: 'Namespace', items: matches });
+      if (matchingKeywords.length > 0) {
+        sections.push({ 
+          title: 'Search by field', 
+          items: matchingKeywords.map(kw => ({ text: kw, displayText: kw }))
+        });
       }
       
       // VM name matches
@@ -205,28 +197,32 @@ export const VirtualMachinesPage: React.FC = () => {
         .slice(0, 3).map(vm => ({ text: vm.name, displayText: vm.name }));
       if (vmMatches.length > 0) sections.push({ title: 'Virtual Machines', items: vmMatches });
       
-      // Value matches
+      // Value matches for filters
       const statusMatches = availableStatuses.filter(s => s !== 'All' && s.toLowerCase().includes(searchLower))
+        .slice(0, 5)
         .map(status => ({ text: `status:${status}`, displayText: status }));
-      if (statusMatches.length > 0 && !sections.find(s => s.title === 'Status')) {
+      if (statusMatches.length > 0) {
         sections.push({ title: 'Status', items: statusMatches });
       }
       
       const osMatches = availableOSs.filter(os => os !== 'All' && os.toLowerCase().includes(searchLower))
+        .slice(0, 5)
         .map(os => ({ text: `os:${os}`, displayText: os }));
-      if (osMatches.length > 0 && !sections.find(s => s.title === 'Operating System')) {
+      if (osMatches.length > 0) {
         sections.push({ title: 'Operating System', items: osMatches });
       }
       
       const clusterMatches = availableClusters.filter(cluster => cluster.toLowerCase().includes(searchLower))
+        .slice(0, 5)
         .map(cluster => ({ text: `cluster:${cluster}`, displayText: cluster }));
-      if (clusterMatches.length > 0 && !sections.find(s => s.title === 'Cluster')) {
+      if (clusterMatches.length > 0) {
         sections.push({ title: 'Cluster', items: clusterMatches });
       }
       
       const namespaceMatches = availableNamespaces.filter(namespace => namespace.toLowerCase().includes(searchLower))
+        .slice(0, 5)
         .map(namespace => ({ text: `namespace:${namespace}`, displayText: namespace }));
-      if (namespaceMatches.length > 0 && !sections.find(s => s.title === 'Namespace')) {
+      if (namespaceMatches.length > 0) {
         sections.push({ title: 'Namespace', items: namespaceMatches });
       }
     }
@@ -234,43 +230,86 @@ export const VirtualMachinesPage: React.FC = () => {
     return { sections, hasResults: sections.length > 0 };
   }, [queryText, availableStatuses, availableOSs, availableClusters, availableNamespaces]);
 
-  // Filter VMs
+  // Filter VMs with AND logic for all filters
   const filteredVMs = React.useMemo(() => {
     return mockVMs.filter(vm => {
-      let matchesQueryText = true;
+      // Collect all filter conditions
+      const conditions: boolean[] = [];
+      
+      // Process query chips (label:value pairs from filter dropdowns)
+      queryChips.forEach(chip => {
+        if (chip.type === 'status') {
+          conditions.push(vm.status.toLowerCase() === chip.value.toLowerCase());
+        } else if (chip.type === 'os') {
+          conditions.push(vm.os.toLowerCase() === chip.value.toLowerCase());
+        } else if (chip.type === 'cluster') {
+          conditions.push(vm.cluster.toLowerCase() === chip.value.toLowerCase());
+        } else if (chip.type === 'namespace') {
+          conditions.push(vm.namespace.toLowerCase() === chip.value.toLowerCase());
+        }
+      });
+      
+      // Process queryText for label:value patterns
       if (queryText) {
-        const labelValueMatch = queryText.match(/^(status|os|cluster|namespace):(.+)$/i);
+        // Extract all label:value patterns from queryText
+        const labelValueRegex = /(name|status|os|cluster|namespace|cpu|memory|disk|ip):([^\s]+)/gi;
+        const matches = [...queryText.matchAll(labelValueRegex)];
         
-        if (labelValueMatch) {
-          const [, label, value] = labelValueMatch;
-          const labelLower = label.toLowerCase();
-          const valueLower = value.toLowerCase();
-          
-          if (labelLower === 'status') {
-            matchesQueryText = vm.status.toLowerCase().includes(valueLower);
-          } else if (labelLower === 'os') {
-            matchesQueryText = vm.os.toLowerCase().includes(valueLower);
-          } else if (labelLower === 'cluster') {
-            matchesQueryText = vm.cluster.toLowerCase().includes(valueLower);
-          } else if (labelLower === 'namespace') {
-            matchesQueryText = vm.namespace.toLowerCase().includes(valueLower);
-          }
+        if (matches.length > 0) {
+          // Apply each label:value filter with AND logic
+          matches.forEach(match => {
+            const label = match[1].toLowerCase();
+            const value = match[2].toLowerCase();
+            
+            if (label === 'name') {
+              conditions.push(vm.name.toLowerCase().includes(value));
+            } else if (label === 'status') {
+              conditions.push(vm.status.toLowerCase().includes(value));
+            } else if (label === 'os') {
+              conditions.push(vm.os.toLowerCase().includes(value));
+            } else if (label === 'cluster') {
+              conditions.push(vm.cluster.toLowerCase().includes(value));
+            } else if (label === 'namespace') {
+              conditions.push(vm.namespace.toLowerCase().includes(value));
+            } else if (label === 'cpu') {
+              conditions.push(vm.cpu.toLowerCase().includes(value));
+            } else if (label === 'memory') {
+              conditions.push(vm.memory.toLowerCase().includes(value));
+            } else if (label === 'disk') {
+              conditions.push(vm.disk.toLowerCase().includes(value));
+            } else if (label === 'ip') {
+              conditions.push(vm.ip.toLowerCase().includes(value));
+            }
+          });
         } else {
-          matchesQueryText = 
-            vm.name.toLowerCase().includes(queryText.toLowerCase()) ||
-            vm.status.toLowerCase().includes(queryText.toLowerCase()) ||
-            vm.os.toLowerCase().includes(queryText.toLowerCase()) ||
-            vm.cluster.toLowerCase().includes(queryText.toLowerCase()) ||
-            vm.namespace.toLowerCase().includes(queryText.toLowerCase());
+          // No label:value pattern, search across all fields with OR logic
+          const searchLower = queryText.toLowerCase();
+          const matchesAnyField = 
+            vm.name.toLowerCase().includes(searchLower) ||
+            vm.status.toLowerCase().includes(searchLower) ||
+            vm.os.toLowerCase().includes(searchLower) ||
+            vm.cluster.toLowerCase().includes(searchLower) ||
+            vm.namespace.toLowerCase().includes(searchLower) ||
+            vm.cpu.toLowerCase().includes(searchLower) ||
+            vm.memory.toLowerCase().includes(searchLower) ||
+            vm.disk.toLowerCase().includes(searchLower) ||
+            vm.ip.toLowerCase().includes(searchLower);
+          conditions.push(matchesAnyField);
         }
       }
       
-      const matchesStatus = statusFilter === 'All' || vm.status === statusFilter;
-      const matchesOS = osFilter === 'All' || vm.os === osFilter;
+      // Apply dropdown filters
+      if (statusFilter !== 'All') {
+        conditions.push(vm.status === statusFilter);
+      }
+      if (osFilter !== 'All') {
+        conditions.push(vm.os === osFilter);
+      }
       
-      return matchesQueryText && matchesStatus && matchesOS;
+      // AND logic: all conditions must be true
+      return conditions.length === 0 || conditions.every(condition => condition);
     });
-  }, [queryText, statusFilter, osFilter]);
+  }, [queryText, queryChips, statusFilter, osFilter]);
 
   const paginatedVMs = React.useMemo(() => {
     const start = (page - 1) * perPage;
@@ -329,7 +368,7 @@ export const VirtualMachinesPage: React.FC = () => {
             <input
               ref={queryInputRef}
               type="text"
-              placeholder={queryChips.length === 0 ? "Search by name or query (e.g., status:Running cluster:hub namespace:default)" : ""}
+              placeholder={queryChips.length === 0 ? "Search by name or use filters (e.g., status:Running cluster:hub cpu:4)" : ""}
               value={queryText}
               onChange={(e) => {
                 setQueryText(e.target.value);
@@ -503,6 +542,23 @@ export const VirtualMachinesPage: React.FC = () => {
                   onClick={() => {
                     setStatusFilter(status);
                     setIsStatusFilterOpen(false);
+                    
+                    // Add or remove chip
+                    if (status !== 'All') {
+                      // Remove any existing status chip first
+                      const existingChip = queryChips.find(chip => chip.type === 'status');
+                      if (existingChip) {
+                        removeQueryChip(existingChip.key);
+                      }
+                      // Add new status chip
+                      addQueryChip('status', `status:${status}`, status);
+                    } else {
+                      // Remove status chip when "All" is selected
+                      const existingChip = queryChips.find(chip => chip.type === 'status');
+                      if (existingChip) {
+                        removeQueryChip(existingChip.key);
+                      }
+                    }
                   }}
                 >
                   {status}
@@ -537,6 +593,23 @@ export const VirtualMachinesPage: React.FC = () => {
                   onClick={() => {
                     setOSFilter(os);
                     setIsOSFilterOpen(false);
+                    
+                    // Add or remove chip
+                    if (os !== 'All') {
+                      // Remove any existing os chip first
+                      const existingChip = queryChips.find(chip => chip.type === 'os');
+                      if (existingChip) {
+                        removeQueryChip(existingChip.key);
+                      }
+                      // Add new os chip
+                      addQueryChip('os', `os:${os}`, os);
+                    } else {
+                      // Remove os chip when "All" is selected
+                      const existingChip = queryChips.find(chip => chip.type === 'os');
+                      if (existingChip) {
+                        removeQueryChip(existingChip.key);
+                      }
+                    }
                   }}
                 >
                   {os}
