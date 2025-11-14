@@ -30,9 +30,16 @@ import {
   EmptyStateBody,
   EmptyStateActions,
   EmptyStateFooter,
+  Modal,
+  ModalVariant,
+  Alert,
+  Form,
+  FormGroup,
+  Grid,
+  GridItem,
 } from '@patternfly/react-core';
 import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
-import { CheckCircleIcon, FilterIcon, SearchIcon } from '@patternfly/react-icons';
+import { CheckCircleIcon, FilterIcon, SearchIcon, ColumnsIcon } from '@patternfly/react-icons';
 import { useSearchParams } from 'react-router-dom';
 
 interface Node {
@@ -125,6 +132,55 @@ export const NodesPage: React.FC = () => {
   const [isNamespaceFilterOpen, setIsNamespaceFilterOpen] = React.useState(false);
   const [isStatusFilterOpen, setIsStatusFilterOpen] = React.useState(false);
   const [isRoleFilterOpen, setIsRoleFilterOpen] = React.useState(false);
+  
+  // Column management
+  const columnConfig: Record<string, { label: string; isDefault: boolean }> = {
+    name: { label: 'Name', isDefault: true },
+    status: { label: 'Status', isDefault: true },
+    roles: { label: 'Roles', isDefault: true },
+    pods: { label: 'Pods', isDefault: true },
+    memory: { label: 'Memory', isDefault: true },
+    cpu: { label: 'CPU', isDefault: true },
+    filesystem: { label: 'Filesystem', isDefault: true },
+    created: { label: 'Created', isDefault: true },
+    instanceType: { label: 'Instance type', isDefault: true },
+    cluster: { label: 'Cluster', isDefault: false },
+    namespace: { label: 'Namespace', isDefault: false },
+  };
+  
+  const defaultColumns = Object.keys(columnConfig).filter(key => columnConfig[key].isDefault);
+  const additionalColumns = Object.keys(columnConfig).filter(key => !columnConfig[key].isDefault);
+  const maxColumns = 9;
+  
+  const [isManageColumnsOpen, setIsManageColumnsOpen] = React.useState(false);
+  const [visibleColumns, setVisibleColumns] = React.useState<string[]>(() => {
+    const saved = localStorage.getItem('nodesVisibleColumns');
+    return saved ? JSON.parse(saved) : defaultColumns;
+  });
+  const [tempVisibleColumns, setTempVisibleColumns] = React.useState<string[]>(visibleColumns);
+  
+  const handleColumnToggle = (column: string, checked: boolean) => {
+    if (checked && tempVisibleColumns.length < maxColumns) {
+      setTempVisibleColumns([...tempVisibleColumns, column]);
+    } else if (!checked) {
+      setTempVisibleColumns(tempVisibleColumns.filter(col => col !== column));
+    }
+  };
+  
+  const handleSaveColumns = () => {
+    setVisibleColumns(tempVisibleColumns);
+    localStorage.setItem('nodesVisibleColumns', JSON.stringify(tempVisibleColumns));
+    setIsManageColumnsOpen(false);
+  };
+  
+  const handleRestoreDefaults = () => {
+    setTempVisibleColumns(defaultColumns);
+  };
+  
+  const handleCancelColumns = () => {
+    setTempVisibleColumns(visibleColumns);
+    setIsManageColumnsOpen(false);
+  };
   
   // Sync state to URL params
   React.useEffect(() => {
@@ -465,6 +521,43 @@ export const NodesPage: React.FC = () => {
     }
   };
 
+  // Helper function to render cell content
+  const renderCellContent = (node: Node, column: string) => {
+    switch (column) {
+      case 'name':
+        return node.name;
+      case 'status':
+        return (
+          <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }} style={{ gap: '0.25rem' }}>
+            <FlexItem>
+              <CheckCircleIcon style={{ color: 'var(--pf-v5-global--success-color--100)', fontSize: '14px' }} />
+            </FlexItem>
+            <FlexItem style={{ fontSize: '14px' }}>{node.status}</FlexItem>
+          </Flex>
+        );
+      case 'roles':
+        return node.roles;
+      case 'cluster':
+        return node.cluster;
+      case 'namespace':
+        return node.namespace;
+      case 'pods':
+        return node.pods;
+      case 'memory':
+        return node.memory;
+      case 'cpu':
+        return node.cpu;
+      case 'filesystem':
+        return node.filesystem;
+      case 'instanceType':
+        return node.instanceType;
+      case 'created':
+        return node.created;
+      default:
+        return '';
+    }
+  };
+
   return (
     <>
       <PageSection 
@@ -771,6 +864,18 @@ export const NodesPage: React.FC = () => {
         {/* Table */}
         <Toolbar style={{ marginTop: 'var(--pf-v5-global--spacer--md)' }}>
         <ToolbarContent>
+          <ToolbarItem>
+            <Button 
+              variant="link" 
+              icon={<ColumnsIcon />}
+              onClick={() => {
+                setTempVisibleColumns(visibleColumns);
+                setIsManageColumnsOpen(true);
+              }}
+            >
+              Manage columns
+            </Button>
+          </ToolbarItem>
           <ToolbarItem variant="pagination" align={{ default: 'alignRight' }}>
             <Pagination
               itemCount={filteredNodes.length}
@@ -818,40 +923,19 @@ export const NodesPage: React.FC = () => {
         <Table variant="compact">
           <Thead>
             <Tr>
-              <Th>Name</Th>
-              <Th>Status</Th>
-              <Th>Roles</Th>
-              <Th>Cluster</Th>
-              <Th>Namespace</Th>
-              <Th>Pods</Th>
-              <Th>Memory</Th>
-              <Th>CPU</Th>
-              <Th>Filesystem</Th>
-              <Th>Instance Type</Th>
-              <Th>Created</Th>
+              {visibleColumns.map(column => (
+                <Th key={column}>{columnConfig[column].label}</Th>
+              ))}
             </Tr>
           </Thead>
           <Tbody>
             {paginatedNodes.map((node, index) => (
               <Tr key={index}>
-                <Td dataLabel="Name">{node.name}</Td>
-                <Td dataLabel="Status">
-                  <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }} style={{ gap: '0.25rem' }}>
-                    <FlexItem>
-                      <CheckCircleIcon style={{ color: 'var(--pf-v5-global--success-color--100)', fontSize: '14px' }} />
-                    </FlexItem>
-                    <FlexItem style={{ fontSize: '14px' }}>{node.status}</FlexItem>
-                  </Flex>
-                </Td>
-                <Td dataLabel="Roles">{node.roles}</Td>
-                <Td dataLabel="Cluster">{node.cluster}</Td>
-                <Td dataLabel="Namespace">{node.namespace}</Td>
-                <Td dataLabel="Pods">{node.pods}</Td>
-                <Td dataLabel="Memory">{node.memory}</Td>
-                <Td dataLabel="CPU">{node.cpu}</Td>
-                <Td dataLabel="Filesystem">{node.filesystem}</Td>
-                <Td dataLabel="Instance Type">{node.instanceType}</Td>
-                <Td dataLabel="Created">{node.created}</Td>
+                {visibleColumns.map(column => (
+                  <Td key={column} dataLabel={columnConfig[column].label}>
+                    {renderCellContent(node, column)}
+                  </Td>
+                ))}
               </Tr>
             ))}
           </Tbody>
@@ -873,6 +957,86 @@ export const NodesPage: React.FC = () => {
           </ToolbarItem>
         </ToolbarContent>
         </Toolbar>
+        
+        {/* Manage Columns Modal */}
+        <Modal
+          variant={ModalVariant.medium}
+          title="Manage columns"
+          isOpen={isManageColumnsOpen}
+          onClose={handleCancelColumns}
+          actions={[
+            <Button key="save" variant="primary" onClick={handleSaveColumns}>
+              Save
+            </Button>,
+            <Button key="cancel" variant="link" onClick={handleCancelColumns}>
+              Cancel
+            </Button>,
+          ]}
+        >
+          <div style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>
+            Selected columns will appear in the table.
+          </div>
+          
+          <Alert
+            variant="info"
+            isInline
+            title={`You can select up to ${maxColumns} columns`}
+            style={{ marginBottom: 'var(--pf-v5-global--spacer--lg)' }}
+          />
+          
+          <Grid hasGutter>
+            <GridItem span={6}>
+              <div style={{ 
+                fontWeight: 'bold', 
+                marginBottom: 'var(--pf-v5-global--spacer--md)',
+                fontSize: 'var(--pf-v5-global--FontSize--sm)'
+              }}>
+                Default Node columns
+              </div>
+              <Form>
+                {defaultColumns.map(column => (
+                  <FormGroup key={column}>
+                    <Checkbox
+                      id={`column-${column}`}
+                      label={columnConfig[column].label}
+                      isChecked={tempVisibleColumns.includes(column)}
+                      onChange={(event, checked) => handleColumnToggle(column, checked)}
+                      isDisabled={!tempVisibleColumns.includes(column) && tempVisibleColumns.length >= maxColumns}
+                    />
+                  </FormGroup>
+                ))}
+              </Form>
+            </GridItem>
+            <GridItem span={6}>
+              <div style={{ 
+                fontWeight: 'bold', 
+                marginBottom: 'var(--pf-v5-global--spacer--md)',
+                fontSize: 'var(--pf-v5-global--FontSize--sm)'
+              }}>
+                Additional columns
+              </div>
+              <Form>
+                {additionalColumns.map(column => (
+                  <FormGroup key={column}>
+                    <Checkbox
+                      id={`column-${column}`}
+                      label={columnConfig[column].label}
+                      isChecked={tempVisibleColumns.includes(column)}
+                      onChange={(event, checked) => handleColumnToggle(column, checked)}
+                      isDisabled={!tempVisibleColumns.includes(column) && tempVisibleColumns.length >= maxColumns}
+                    />
+                  </FormGroup>
+                ))}
+              </Form>
+            </GridItem>
+          </Grid>
+          
+          <div style={{ marginTop: 'var(--pf-v5-global--spacer--lg)' }}>
+            <Button variant="link" onClick={handleRestoreDefaults}>
+              Restore default columns
+            </Button>
+          </div>
+        </Modal>
       </PageSection>
     </>
   );
