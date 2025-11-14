@@ -237,7 +237,7 @@ export const VirtualMachinesPage: React.FC = () => {
       // VM name matches
       const vmMatches = mockVMs.filter(vm => vm.name.toLowerCase().includes(searchLower))
         .slice(0, 3).map(vm => ({ text: `name:${vm.name}`, displayText: vm.name }));
-      if (vmMatches.length > 0) sections.push({ title: 'Virtual Machines', items: vmMatches });
+      if (vmMatches.length > 0) sections.push({ title: 'Name', items: vmMatches });
       
       // Value matches for filters
       const statusMatches = availableStatuses.filter(s => s !== 'All' && s.toLowerCase().includes(searchLower))

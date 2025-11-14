@@ -404,7 +404,7 @@ export const NodesPage: React.FC = () => {
         .filter(node => node.name.toLowerCase().includes(searchLower))
         .slice(0, 3)
         .map(node => ({ text: `name:${node.name}`, displayText: node.name }));
-      if (nodeMatches.length > 0) sections.push({ title: 'Nodes', items: nodeMatches });
+      if (nodeMatches.length > 0) sections.push({ title: 'Name', items: nodeMatches });
       
       // Value matches for filters
       const clusterMatches = uniqueClusters
