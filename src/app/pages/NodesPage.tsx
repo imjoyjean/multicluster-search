@@ -545,13 +545,7 @@ export const NodesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsClusterFilterOpen(!isClusterFilterOpen)}
                 isExpanded={isClusterFilterOpen}
-                variant="default"
-                aria-label="Cluster filter"
                 icon={<FilterIcon />}
-                style={{
-                  backgroundColor: '#ffffff',
-                  minWidth: '160px'
-                }}
               >
                 Cluster
               </MenuToggle>
@@ -584,13 +578,7 @@ export const NodesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsNamespaceFilterOpen(!isNamespaceFilterOpen)}
                 isExpanded={isNamespaceFilterOpen}
-                variant="default"
-                aria-label="Namespace filter"
                 icon={<FilterIcon />}
-                style={{
-                  backgroundColor: '#ffffff',
-                  minWidth: '160px'
-                }}
               >
                 Namespace
               </MenuToggle>
@@ -623,13 +611,7 @@ export const NodesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsStatusFilterOpen(!isStatusFilterOpen)}
                 isExpanded={isStatusFilterOpen}
-                variant="default"
-                aria-label="Status filter"
                 icon={<FilterIcon />}
-                style={{
-                  backgroundColor: '#ffffff',
-                  minWidth: '160px'
-                }}
               >
                 Status
               </MenuToggle>
@@ -662,13 +644,7 @@ export const NodesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsRoleFilterOpen(!isRoleFilterOpen)}
                 isExpanded={isRoleFilterOpen}
-                variant="default"
-                aria-label="Role filter"
                 icon={<FilterIcon />}
-                style={{
-                  backgroundColor: '#ffffff',
-                  minWidth: '160px'
-                }}
               >
                 Role
               </MenuToggle>
