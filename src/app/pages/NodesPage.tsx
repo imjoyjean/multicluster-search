@@ -46,7 +46,7 @@ import {
   DataListControl,
 } from '@patternfly/react-core';
 import { DragDrop, Draggable, Droppable } from '@patternfly/react-core';
-import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
+import { Table, Thead, Tbody, Tr, Th, Td, ThProps } from '@patternfly/react-table';
 import { CheckCircleIcon, FilterIcon, SearchIcon, ColumnsIcon, GripVerticalIcon } from '@patternfly/react-icons';
 import { useSearchParams } from 'react-router-dom';
 
@@ -127,6 +127,8 @@ export const NodesPage: React.FC = () => {
   const [queryChips, setQueryChips] = React.useState<Array<{ key: string; label: string; value: string; type: string }>>([]);
   const [isAutocompleteOpen, setIsAutocompleteOpen] = React.useState(false);
   const queryInputRef = React.useRef<HTMLInputElement>(null);
+  const [activeSortIndex, setActiveSortIndex] = React.useState<number | null>(null);
+  const [activeSortDirection, setActiveSortDirection] = React.useState<'asc' | 'desc'>('asc');
   const searchContainerRef = React.useRef<HTMLDivElement>(null);
   const searchWrapperRef = React.useRef<HTMLDivElement>(null);
   const isProgrammaticUpdate = React.useRef(false);
@@ -602,10 +604,86 @@ export const NodesPage: React.FC = () => {
     });
   }, [queryText, queryChips, clusterFilter, namespaceFilter, statusFilter, roleFilter]);
 
+  // Sort nodes
+  const sortedNodes = React.useMemo(() => {
+    if (activeSortIndex === null) {
+      return filteredNodes;
+    }
+
+    const sortedArray = [...filteredNodes];
+    const columnKey = visibleColumns[activeSortIndex];
+
+    sortedArray.sort((a, b) => {
+      let aValue: string | number = '';
+      let bValue: string | number = '';
+
+      // Get values based on column
+      switch (columnKey) {
+        case 'name':
+          aValue = a.name;
+          bValue = b.name;
+          break;
+        case 'status':
+          aValue = a.status;
+          bValue = b.status;
+          break;
+        case 'cluster':
+          aValue = a.cluster;
+          bValue = b.cluster;
+          break;
+        case 'namespace':
+          aValue = a.namespace;
+          bValue = b.namespace;
+          break;
+        case 'roles':
+          aValue = a.roles;
+          bValue = b.roles;
+          break;
+        case 'pods':
+          aValue = parseInt(a.pods.split('/')[0]) || 0;
+          bValue = parseInt(b.pods.split('/')[0]) || 0;
+          break;
+        case 'memory':
+          aValue = parseFloat(a.memory.split(' ')[0]) || 0;
+          bValue = parseFloat(b.memory.split(' ')[0]) || 0;
+          break;
+        case 'created':
+          aValue = a.created;
+          bValue = b.created;
+          break;
+        case 'filesystem':
+          aValue = parseInt(a.filesystem.replace('%', '')) || 0;
+          bValue = parseInt(b.filesystem.replace('%', '')) || 0;
+          break;
+        case 'instanceType':
+          aValue = a.instanceType;
+          bValue = b.instanceType;
+          break;
+        case 'cpu':
+          aValue = parseInt(a.cpu) || 0;
+          bValue = parseInt(b.cpu) || 0;
+          break;
+        default:
+          return 0;
+      }
+
+      // Compare values
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        const result = aValue.localeCompare(bValue);
+        return activeSortDirection === 'asc' ? result : -result;
+      } else {
+        const result = (aValue as number) - (bValue as number);
+        return activeSortDirection === 'asc' ? result : -result;
+      }
+    });
+
+    return sortedArray;
+  }, [filteredNodes, activeSortIndex, activeSortDirection, visibleColumns]);
+
   const paginatedNodes = React.useMemo(() => {
     const start = (page - 1) * perPage;
-    return filteredNodes.slice(start, start + perPage);
-  }, [filteredNodes, page, perPage]);
+    return sortedNodes.slice(start, start + perPage);
+  }, [sortedNodes, page, perPage]);
 
   const onSetPage = (_event: any, pageNumber: number) => setPage(pageNumber);
   const onPerPageSelect = (_event: any, newPerPage: number) => {
@@ -702,6 +780,19 @@ export const NodesPage: React.FC = () => {
         return '';
     }
   };
+
+  // Get sorting parameters for table columns
+  const getSortParams = (columnIndex: number): ThProps['sort'] => ({
+    sortBy: {
+      index: activeSortIndex || undefined,
+      direction: activeSortDirection,
+    },
+    onSort: (_event, index, direction) => {
+      setActiveSortIndex(index);
+      setActiveSortDirection(direction);
+    },
+    columnIndex,
+  });
 
   return (
     <>
@@ -1121,8 +1212,10 @@ export const NodesPage: React.FC = () => {
         <Table variant="compact">
           <Thead>
             <Tr>
-              {visibleColumns.map(column => (
-                <Th key={column}>{columnConfig[column].label}</Th>
+              {visibleColumns.map((column, index) => (
+                <Th key={column} sort={getSortParams(index)}>
+                  {columnConfig[column].label}
+                </Th>
               ))}
             </Tr>
           </Thead>

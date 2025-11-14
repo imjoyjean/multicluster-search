@@ -31,7 +31,7 @@ import {
   EmptyStateActions,
   EmptyStateFooter,
 } from '@patternfly/react-core';
-import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
+import { Table, Thead, Tbody, Tr, Th, Td, ThProps } from '@patternfly/react-table';
 import { FilterIcon, SearchIcon } from '@patternfly/react-icons';
 import { useSearchParams } from 'react-router-dom';
 
@@ -68,6 +68,8 @@ export const VirtualMachinesPage: React.FC = () => {
   const [queryChips, setQueryChips] = React.useState<Array<{ key: string; label: string; value: string; type: string }>>([]);
   const [isAutocompleteOpen, setIsAutocompleteOpen] = React.useState(false);
   const queryInputRef = React.useRef<HTMLInputElement>(null);
+  const [activeSortIndex, setActiveSortIndex] = React.useState<number | null>(null);
+  const [activeSortDirection, setActiveSortDirection] = React.useState<'asc' | 'desc'>('asc');
   const searchContainerRef = React.useRef<HTMLDivElement>(null);
   const searchWrapperRef = React.useRef<HTMLDivElement>(null);
   const isProgrammaticUpdate = React.useRef(false);
@@ -427,16 +429,98 @@ export const VirtualMachinesPage: React.FC = () => {
     });
   }, [queryText, queryChips, statusFilter, osFilter]);
 
+  // Sort VMs
+  const sortedVMs = React.useMemo(() => {
+    if (activeSortIndex === null) {
+      return filteredVMs;
+    }
+
+    const sortedArray = [...filteredVMs];
+    const columns = ['name', 'status', 'os', 'cluster', 'namespace', 'cpu', 'memory', 'disk', 'ip'];
+    const columnKey = columns[activeSortIndex];
+
+    sortedArray.sort((a, b) => {
+      let aValue: string | number = '';
+      let bValue: string | number = '';
+
+      // Get values based on column
+      switch (columnKey) {
+        case 'name':
+          aValue = a.name;
+          bValue = b.name;
+          break;
+        case 'status':
+          aValue = a.status;
+          bValue = b.status;
+          break;
+        case 'os':
+          aValue = a.os;
+          bValue = b.os;
+          break;
+        case 'cluster':
+          aValue = a.cluster;
+          bValue = b.cluster;
+          break;
+        case 'namespace':
+          aValue = a.namespace;
+          bValue = b.namespace;
+          break;
+        case 'cpu':
+          aValue = parseInt(a.cpu) || 0;
+          bValue = parseInt(b.cpu) || 0;
+          break;
+        case 'memory':
+          aValue = parseInt(a.memory.split(' ')[0]) || 0;
+          bValue = parseInt(b.memory.split(' ')[0]) || 0;
+          break;
+        case 'disk':
+          aValue = parseInt(a.disk.split(' ')[0]) || 0;
+          bValue = parseInt(b.disk.split(' ')[0]) || 0;
+          break;
+        case 'ip':
+          aValue = a.ip;
+          bValue = b.ip;
+          break;
+        default:
+          return 0;
+      }
+
+      // Compare values
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        const result = aValue.localeCompare(bValue);
+        return activeSortDirection === 'asc' ? result : -result;
+      } else {
+        const result = (aValue as number) - (bValue as number);
+        return activeSortDirection === 'asc' ? result : -result;
+      }
+    });
+
+    return sortedArray;
+  }, [filteredVMs, activeSortIndex, activeSortDirection]);
+
   const paginatedVMs = React.useMemo(() => {
     const start = (page - 1) * perPage;
-    return filteredVMs.slice(start, start + perPage);
-  }, [filteredVMs, page, perPage]);
+    return sortedVMs.slice(start, start + perPage);
+  }, [sortedVMs, page, perPage]);
 
   const onSetPage = (_event: any, pageNumber: number) => setPage(pageNumber);
   const onPerPageSelect = (_event: any, newPerPage: number) => {
     setPerPage(newPerPage);
     setPage(1);
   };
+
+  // Get sorting parameters for table columns
+  const getSortParams = (columnIndex: number): ThProps['sort'] => ({
+    sortBy: {
+      index: activeSortIndex || undefined,
+      direction: activeSortDirection,
+    },
+    onSort: (_event, index, direction) => {
+      setActiveSortIndex(index);
+      setActiveSortDirection(direction);
+    },
+    columnIndex,
+  });
 
   return (
     <>
@@ -853,15 +937,15 @@ export const VirtualMachinesPage: React.FC = () => {
         <Table variant="compact">
           <Thead>
             <Tr>
-              <Th>Name</Th>
-              <Th>Status</Th>
-              <Th>Operating System</Th>
-              <Th>Cluster</Th>
-              <Th>Namespace</Th>
-              <Th>CPU</Th>
-              <Th>Memory</Th>
-              <Th>Disk</Th>
-              <Th>IP Address</Th>
+              <Th sort={getSortParams(0)}>Name</Th>
+              <Th sort={getSortParams(1)}>Status</Th>
+              <Th sort={getSortParams(2)}>Operating System</Th>
+              <Th sort={getSortParams(3)}>Cluster</Th>
+              <Th sort={getSortParams(4)}>Namespace</Th>
+              <Th sort={getSortParams(5)}>CPU</Th>
+              <Th sort={getSortParams(6)}>Memory</Th>
+              <Th sort={getSortParams(7)}>Disk</Th>
+              <Th sort={getSortParams(8)}>IP Address</Th>
             </Tr>
           </Thead>
           <Tbody>
