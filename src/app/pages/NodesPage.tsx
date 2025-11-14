@@ -260,21 +260,6 @@ export const NodesPage: React.FC = () => {
     const key = `${type}-${value.replace(/\s+/g, '-')}`;
     if (!queryChips.find(chip => chip.key === key)) {
       setQueryChips([...queryChips, { key, label, value, type }]);
-      
-      // Sync with filter dropdowns
-      if (type === 'cluster' && !clusterFilter.includes(value)) {
-        console.log('🔄 Syncing cluster filter:', value, 'Current filters:', clusterFilter);
-        setClusterFilter([...clusterFilter, value]);
-      } else if (type === 'namespace' && !namespaceFilter.includes(value)) {
-        console.log('🔄 Syncing namespace filter:', value);
-        setNamespaceFilter([...namespaceFilter, value]);
-      } else if (type === 'status' && !statusFilter.includes(value)) {
-        console.log('🔄 Syncing status filter:', value);
-        setStatusFilter([...statusFilter, value]);
-      } else if (type === 'role' && !roleFilter.includes(value)) {
-        console.log('🔄 Syncing role filter:', value);
-        setRoleFilter([...roleFilter, value]);
-      }
     }
   };
 
