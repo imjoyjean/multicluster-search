@@ -485,10 +485,18 @@ export const NodesPage: React.FC = () => {
       if (roleMatches.length > 0) {
         sections.push({ title: 'Role', items: roleMatches });
       }
+      
+      const instanceTypeMatches = uniqueInstanceTypes
+        .filter(it => it.toLowerCase().includes(searchLower))
+        .slice(0, 5)
+        .map(it => ({ text: `instanceType:${it}`, displayText: it }));
+      if (instanceTypeMatches.length > 0) {
+        sections.push({ title: 'Instance type', items: instanceTypeMatches });
+      }
     }
     
     return { sections, hasResults: sections.length > 0 };
-  }, [queryText, uniqueClusters, uniqueNamespaces, uniqueStatuses, uniqueRoles]);
+  }, [queryText, uniqueClusters, uniqueNamespaces, uniqueStatuses, uniqueRoles, uniqueInstanceTypes]);
 
   // Helper function to compare numeric values with operators
   const compareNumeric = (nodeValue: string, filterValue: string): boolean => {
