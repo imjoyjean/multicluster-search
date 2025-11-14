@@ -234,6 +234,25 @@ export const VirtualMachinesPage: React.FC = () => {
         });
       }
       
+      // Add comparison operator examples for numeric fields
+      const numericFieldExamples = [
+        { text: 'cpu:>=4', displayText: 'cpu:>=4 (4 or more CPUs)' },
+        { text: 'memory:>8', displayText: 'memory:>8 (more than 8 GiB)' },
+        { text: 'disk:<100', displayText: 'disk:<100 (less than 100 GiB)' },
+      ];
+      
+      const matchingExamples = numericFieldExamples.filter(ex => 
+        ex.text.toLowerCase().includes(searchLower) || 
+        (searchLower.length >= 2 && ['cpu', 'memory', 'disk'].some(field => field.includes(searchLower)))
+      );
+      
+      if (matchingExamples.length > 0) {
+        sections.push({ 
+          title: 'Advanced filters (>, <, >=, <=)', 
+          items: matchingExamples
+        });
+      }
+      
       // VM name matches
       const vmMatches = mockVMs.filter(vm => vm.name.toLowerCase().includes(searchLower))
         .slice(0, 3).map(vm => ({ text: `name:${vm.name}`, displayText: vm.name }));
@@ -472,7 +491,7 @@ export const VirtualMachinesPage: React.FC = () => {
             <input
               ref={queryInputRef}
               type="text"
-              placeholder={queryChips.length === 0 ? "Search by name or use filters (e.g., status:Running cluster:hub cpu:4)" : ""}
+              placeholder={queryChips.length === 0 ? "Search by name or use filters (e.g., status:Running cpu:>=4 memory:>8)" : ""}
               value={queryText}
               onChange={(e) => {
                 setQueryText(e.target.value);

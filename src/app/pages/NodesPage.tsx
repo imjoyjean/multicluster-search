@@ -384,6 +384,26 @@ export const NodesPage: React.FC = () => {
         });
       }
       
+      // Add comparison operator examples for numeric fields
+      const numericFieldExamples = [
+        { text: 'filesystem:>40', displayText: 'filesystem:>40 (greater than 40%)' },
+        { text: 'memory:>=8', displayText: 'memory:>=8 (8 GiB or more)' },
+        { text: 'cpu:<4', displayText: 'cpu:<4 (less than 4 cores)' },
+        { text: 'pods:<=100', displayText: 'pods:<=100 (100 or fewer)' },
+      ];
+      
+      const matchingExamples = numericFieldExamples.filter(ex => 
+        ex.text.toLowerCase().includes(searchLower) || 
+        (searchLower.length >= 2 && ['filesystem', 'memory', 'cpu', 'pods'].some(field => field.includes(searchLower)))
+      );
+      
+      if (matchingExamples.length > 0) {
+        sections.push({ 
+          title: 'Advanced filters (>, <, >=, <=)', 
+          items: matchingExamples
+        });
+      }
+      
       // Node name matches
       const nodeMatches = mockNodes
         .filter(node => node.name.toLowerCase().includes(searchLower))
@@ -737,7 +757,7 @@ export const NodesPage: React.FC = () => {
             <input
               ref={queryInputRef}
               type="text"
-              placeholder={queryChips.length === 0 ? "Search by name or use filters (e.g., status:Ready cluster:production-east instanceType:m5.xlarge)" : ""}
+              placeholder={queryChips.length === 0 ? "Search by name or use filters (e.g., status:Ready filesystem:>40 memory:>=8)" : ""}
               value={queryText}
               onChange={(e) => {
                 setQueryText(e.target.value);
