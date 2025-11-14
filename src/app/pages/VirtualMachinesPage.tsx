@@ -256,7 +256,7 @@ export const VirtualMachinesPage: React.FC = () => {
     <>
       <PageSection variant={PageSectionVariants.default} padding={{ default: 'noPadding' }}>
         <div style={{ 
-          backgroundColor: '#ffffff',
+          backgroundColor: 'var(--pf-v5-global--BackgroundColor--200)',
           padding: 'var(--pf-v5-global--spacer--md) var(--pf-v5-global--spacer--lg)'
         }}>
           <Title headingLevel="h1" size="xl" style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>Virtual machines</Title>
@@ -406,9 +406,11 @@ export const VirtualMachinesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsStatusFilterOpen(!isStatusFilterOpen)}
                 isExpanded={isStatusFilterOpen}
+                variant="plain"
                 icon={<FilterIcon />}
                 style={{
-                  width: '220px'
+                  width: '220px',
+                  fontWeight: 400
                 }}
               >
                 Status: {statusFilter}
@@ -440,9 +442,11 @@ export const VirtualMachinesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsOSFilterOpen(!isOSFilterOpen)}
                 isExpanded={isOSFilterOpen}
+                variant="plain"
                 icon={<FilterIcon />}
                 style={{
-                  width: '260px'
+                  width: '260px',
+                  fontWeight: 400
                 }}
               >
                 Operating system: {osFilter}
