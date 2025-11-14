@@ -428,6 +428,37 @@ export const NodesPage: React.FC = () => {
     return { sections, hasResults: sections.length > 0 };
   }, [queryText, uniqueClusters, uniqueNamespaces, uniqueStatuses, uniqueRoles]);
 
+  // Helper function to compare numeric values with operators
+  const compareNumeric = (nodeValue: string, filterValue: string): boolean => {
+    // Check for comparison operators
+    const operatorMatch = filterValue.match(/^(>=|<=|>|<)(.+)$/);
+    
+    if (!operatorMatch) {
+      // No operator, use string includes
+      return nodeValue.toLowerCase().includes(filterValue.toLowerCase());
+    }
+    
+    const [, operator, targetValue] = operatorMatch;
+    
+    // Extract numeric value from node value (e.g., "45%" -> 45, "8.9 GiB / 16 GiB" -> 8.9)
+    const nodeNumMatch = nodeValue.match(/^(\d+\.?\d*)/);
+    const targetNum = parseFloat(targetValue);
+    
+    if (!nodeNumMatch || isNaN(targetNum)) {
+      return false; // Can't compare non-numeric values
+    }
+    
+    const nodeNum = parseFloat(nodeNumMatch[1]);
+    
+    switch (operator) {
+      case '>': return nodeNum > targetNum;
+      case '<': return nodeNum < targetNum;
+      case '>=': return nodeNum >= targetNum;
+      case '<=': return nodeNum <= targetNum;
+      default: return false;
+    }
+  };
+
   // Filter nodes with AND logic for all filters
   const filteredNodes = React.useMemo(() => {
     return mockNodes.filter(node => {
@@ -488,13 +519,13 @@ export const NodesPage: React.FC = () => {
             } else if (label === 'role') {
               conditions.push(node.roles.toLowerCase().includes(value));
             } else if (label === 'pods') {
-              conditions.push(node.pods.toLowerCase().includes(value));
+              conditions.push(compareNumeric(node.pods, value));
             } else if (label === 'memory') {
-              conditions.push(node.memory.toLowerCase().includes(value));
+              conditions.push(compareNumeric(node.memory, value));
             } else if (label === 'cpu') {
-              conditions.push(node.cpu.toLowerCase().includes(value));
+              conditions.push(compareNumeric(node.cpu, value));
             } else if (label === 'filesystem') {
-              conditions.push(node.filesystem.toLowerCase().includes(value));
+              conditions.push(compareNumeric(node.filesystem, value));
             } else if (label === 'instancetype') {
               conditions.push(node.instanceType.toLowerCase().includes(value));
             } else if (label === 'created') {

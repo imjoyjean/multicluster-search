@@ -272,6 +272,37 @@ export const VirtualMachinesPage: React.FC = () => {
     return { sections, hasResults: sections.length > 0 };
   }, [queryText, availableStatuses, availableOSs, availableClusters, availableNamespaces]);
 
+  // Helper function to compare numeric values with operators
+  const compareNumeric = (vmValue: string, filterValue: string): boolean => {
+    // Check for comparison operators
+    const operatorMatch = filterValue.match(/^(>=|<=|>|<)(.+)$/);
+    
+    if (!operatorMatch) {
+      // No operator, use string includes
+      return vmValue.toLowerCase().includes(filterValue.toLowerCase());
+    }
+    
+    const [, operator, targetValue] = operatorMatch;
+    
+    // Extract numeric value from VM value (e.g., "4" -> 4, "8 GiB" -> 8)
+    const vmNumMatch = vmValue.match(/^(\d+\.?\d*)/);
+    const targetNum = parseFloat(targetValue);
+    
+    if (!vmNumMatch || isNaN(targetNum)) {
+      return false; // Can't compare non-numeric values
+    }
+    
+    const vmNum = parseFloat(vmNumMatch[1]);
+    
+    switch (operator) {
+      case '>': return vmNum > targetNum;
+      case '<': return vmNum < targetNum;
+      case '>=': return vmNum >= targetNum;
+      case '<=': return vmNum <= targetNum;
+      default: return false;
+    }
+  };
+
   // Filter VMs with AND logic for all filters
   const filteredVMs = React.useMemo(() => {
     return mockVMs.filter(vm => {
@@ -330,11 +361,11 @@ export const VirtualMachinesPage: React.FC = () => {
             } else if (label === 'namespace') {
               conditions.push(vm.namespace.toLowerCase().includes(value));
             } else if (label === 'cpu') {
-              conditions.push(vm.cpu.toLowerCase().includes(value));
+              conditions.push(compareNumeric(vm.cpu, value));
             } else if (label === 'memory') {
-              conditions.push(vm.memory.toLowerCase().includes(value));
+              conditions.push(compareNumeric(vm.memory, value));
             } else if (label === 'disk') {
-              conditions.push(vm.disk.toLowerCase().includes(value));
+              conditions.push(compareNumeric(vm.disk, value));
             } else if (label === 'ip') {
               conditions.push(vm.ip.toLowerCase().includes(value));
             }
