@@ -497,6 +497,18 @@ export const NodesPage: React.FC = () => {
           conditions.push(node.roles.toLowerCase().includes(chip.value.toLowerCase()));
         } else if (chip.type === 'name') {
           conditions.push(node.name.toLowerCase() === chip.value.toLowerCase());
+        } else if (chip.type === 'pods') {
+          conditions.push(compareNumeric(node.pods, chip.value));
+        } else if (chip.type === 'memory') {
+          conditions.push(compareNumeric(node.memory, chip.value));
+        } else if (chip.type === 'cpu') {
+          conditions.push(compareNumeric(node.cpu, chip.value));
+        } else if (chip.type === 'filesystem') {
+          conditions.push(compareNumeric(node.filesystem, chip.value));
+        } else if (chip.type === 'instancetype' || chip.type === 'instanceType') {
+          conditions.push(node.instanceType.toLowerCase().includes(chip.value.toLowerCase()));
+        } else if (chip.type === 'created') {
+          conditions.push(node.created.toLowerCase().includes(chip.value.toLowerCase()));
         } else if (chip.type === 'search') {
           // General search - check if it matches any field
           const searchLower = chip.value.toLowerCase();

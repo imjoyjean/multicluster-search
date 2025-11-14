@@ -340,6 +340,14 @@ export const VirtualMachinesPage: React.FC = () => {
           conditions.push(vm.namespace.toLowerCase() === chip.value.toLowerCase());
         } else if (chip.type === 'name') {
           conditions.push(vm.name.toLowerCase() === chip.value.toLowerCase());
+        } else if (chip.type === 'cpu') {
+          conditions.push(compareNumeric(vm.cpu, chip.value));
+        } else if (chip.type === 'memory') {
+          conditions.push(compareNumeric(vm.memory, chip.value));
+        } else if (chip.type === 'disk') {
+          conditions.push(compareNumeric(vm.disk, chip.value));
+        } else if (chip.type === 'ip') {
+          conditions.push(vm.ip.toLowerCase().includes(chip.value.toLowerCase()));
         } else if (chip.type === 'search') {
           // General search - check if it matches any field
           const searchLower = chip.value.toLowerCase();
