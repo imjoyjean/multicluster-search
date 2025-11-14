@@ -129,6 +129,7 @@ export const NodesPage: React.FC = () => {
   const queryInputRef = React.useRef<HTMLInputElement>(null);
   const searchContainerRef = React.useRef<HTMLDivElement>(null);
   const searchWrapperRef = React.useRef<HTMLDivElement>(null);
+  const isProgrammaticUpdate = React.useRef(false);
   
   // Multi-select filter states
   const [clusterFilter, setClusterFilter] = React.useState<string[]>([]);
@@ -691,7 +692,10 @@ export const NodesPage: React.FC = () => {
               value={queryText}
               onChange={(e) => {
                 setQueryText(e.target.value);
-                setIsAutocompleteOpen(e.target.value.length > 0);
+                // Only auto-open/close autocomplete if this is a user typing, not a programmatic update
+                if (!isProgrammaticUpdate.current) {
+                  setIsAutocompleteOpen(e.target.value.length > 0);
+                }
               }}
               onFocus={() => queryText.length > 0 && setIsAutocompleteOpen(true)}
               onKeyDown={(e) => {
@@ -787,8 +791,10 @@ export const NodesPage: React.FC = () => {
                             
                             if (fieldKeywordMatch) {
                               // Just insert the field keyword into the search box and keep autocomplete open
+                              isProgrammaticUpdate.current = true;
                               setQueryText(item.text);
                               setTimeout(() => {
+                                isProgrammaticUpdate.current = false;
                                 setIsAutocompleteOpen(true);
                                 queryInputRef.current?.focus();
                               }, 10);
