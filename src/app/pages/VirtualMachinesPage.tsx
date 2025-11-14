@@ -405,11 +405,12 @@ export const VirtualMachinesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsStatusFilterOpen(!isStatusFilterOpen)}
                 isExpanded={isStatusFilterOpen}
-                variant="typeahead"
+                variant="default"
                 aria-label="Status filter"
                 style={{
                   backgroundColor: '#ffffff',
-                  minWidth: '200px'
+                  minWidth: '200px',
+                  padding: '6px 12px'
                 }}
               >
                 Status: {statusFilter}
@@ -441,11 +442,12 @@ export const VirtualMachinesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsOSFilterOpen(!isOSFilterOpen)}
                 isExpanded={isOSFilterOpen}
-                variant="typeahead"
+                variant="default"
                 aria-label="Operating system filter"
                 style={{
                   backgroundColor: '#ffffff',
-                  minWidth: '240px'
+                  minWidth: '240px',
+                  padding: '6px 12px'
                 }}
               >
                 Operating system: {osFilter}

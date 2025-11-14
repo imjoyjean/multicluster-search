@@ -545,11 +545,12 @@ export const NodesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsClusterFilterOpen(!isClusterFilterOpen)}
                 isExpanded={isClusterFilterOpen}
-                variant="typeahead"
+                variant="default"
                 aria-label="Cluster filter"
                 style={{
                   backgroundColor: '#ffffff',
-                  minWidth: '160px'
+                  minWidth: '160px',
+                  padding: '6px 12px'
                 }}
               >
                 Cluster
@@ -583,11 +584,12 @@ export const NodesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsNamespaceFilterOpen(!isNamespaceFilterOpen)}
                 isExpanded={isNamespaceFilterOpen}
-                variant="typeahead"
+                variant="default"
                 aria-label="Namespace filter"
                 style={{
                   backgroundColor: '#ffffff',
-                  minWidth: '160px'
+                  minWidth: '160px',
+                  padding: '6px 12px'
                 }}
               >
                 Namespace
@@ -621,11 +623,12 @@ export const NodesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsStatusFilterOpen(!isStatusFilterOpen)}
                 isExpanded={isStatusFilterOpen}
-                variant="typeahead"
+                variant="default"
                 aria-label="Status filter"
                 style={{
                   backgroundColor: '#ffffff',
-                  minWidth: '160px'
+                  minWidth: '160px',
+                  padding: '6px 12px'
                 }}
               >
                 Status
@@ -659,11 +662,12 @@ export const NodesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsRoleFilterOpen(!isRoleFilterOpen)}
                 isExpanded={isRoleFilterOpen}
-                variant="typeahead"
+                variant="default"
                 aria-label="Role filter"
                 style={{
                   backgroundColor: '#ffffff',
-                  minWidth: '160px'
+                  minWidth: '160px',
+                  padding: '6px 12px'
                 }}
               >
                 Role
