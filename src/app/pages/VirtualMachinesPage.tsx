@@ -22,6 +22,7 @@ import {
   MenuList,
   MenuItem,
   Divider,
+  SearchInput,
 } from '@patternfly/react-core';
 import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
 import { useSearchParams } from 'react-router-dom';
@@ -262,55 +263,21 @@ export const VirtualMachinesPage: React.FC = () => {
         <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }} style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>
         {/* Query Bar */}
         <FlexItem flex={{ default: 'flex_1' }} style={{ position: 'relative', maxWidth: '600px' }}>
-          <div 
-            ref={searchContainerRef}
-            onClick={() => queryInputRef.current?.focus()}
-            style={{
-              border: '1px solid #d2d2d2',
-              borderRadius: '3px',
-              padding: '6px 12px',
-              minHeight: '36px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              flexWrap: 'wrap',
-              backgroundColor: '#ffffff',
-              cursor: 'text',
-              width: '100%'
-            }}
-          >
-            <input
+          <div ref={searchContainerRef}>
+            <SearchInput
               ref={queryInputRef}
-              type="text"
+              placeholder="Search by name or query (e.g., status:Running cluster:hub namespace:default)"
               value={queryText}
-              onChange={(e) => {
-                setQueryText(e.target.value);
-                setIsAutocompleteOpen(e.target.value.length > 0);
+              onChange={(_event, value) => {
+                setQueryText(value);
+                setIsAutocompleteOpen(value.length > 0);
               }}
               onFocus={() => queryText.length > 0 && setIsAutocompleteOpen(true)}
-              placeholder="Search by name..."
-              style={{
-                border: 'none',
-                outline: 'none',
-                flex: 1,
-                minWidth: '150px',
-                fontSize: '14px',
-                backgroundColor: 'transparent',
-                fontFamily: 'RedHatText, Overpass, overpass, helvetica, arial, sans-serif',
-                color: 'var(--pf-v5-global--Color--100)'
+              onClear={() => {
+                setQueryText('');
+                setIsAutocompleteOpen(false);
               }}
             />
-            {queryText && (
-              <Button 
-                variant="plain" 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setQueryText('');
-                }}
-              >
-                Clear all
-              </Button>
-            )}
           </div>
           
           {/* Autocomplete Menu */}
@@ -325,7 +292,7 @@ export const VirtualMachinesPage: React.FC = () => {
                 marginTop: '4px',
                 zIndex: 1000,
                 backgroundColor: '#ffffff',
-                border: '1px solid #d2d2d2',
+                border: '1px solid #6a6e73',
                 borderRadius: '3px',
                 boxShadow: '0 0.25rem 0.5rem 0rem rgba(3, 3, 3, 0.2), 0 0 0.25rem 0 rgba(3, 3, 3, 0.12)',
                 maxHeight: '400px',
