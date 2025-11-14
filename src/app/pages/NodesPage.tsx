@@ -546,6 +546,9 @@ export const NodesPage: React.FC = () => {
                 onClick={() => setIsClusterFilterOpen(!isClusterFilterOpen)}
                 isExpanded={isClusterFilterOpen}
                 icon={<FilterIcon />}
+                style={{
+                  width: '160px'
+                }}
               >
                 Cluster
               </MenuToggle>
@@ -579,6 +582,9 @@ export const NodesPage: React.FC = () => {
                 onClick={() => setIsNamespaceFilterOpen(!isNamespaceFilterOpen)}
                 isExpanded={isNamespaceFilterOpen}
                 icon={<FilterIcon />}
+                style={{
+                  width: '160px'
+                }}
               >
                 Namespace
               </MenuToggle>
@@ -612,6 +618,9 @@ export const NodesPage: React.FC = () => {
                 onClick={() => setIsStatusFilterOpen(!isStatusFilterOpen)}
                 isExpanded={isStatusFilterOpen}
                 icon={<FilterIcon />}
+                style={{
+                  width: '160px'
+                }}
               >
                 Status
               </MenuToggle>
@@ -645,6 +654,9 @@ export const NodesPage: React.FC = () => {
                 onClick={() => setIsRoleFilterOpen(!isRoleFilterOpen)}
                 isExpanded={isRoleFilterOpen}
                 icon={<FilterIcon />}
+                style={{
+                  width: '160px'
+                }}
               >
                 Role
               </MenuToggle>

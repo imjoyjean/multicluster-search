@@ -407,6 +407,9 @@ export const VirtualMachinesPage: React.FC = () => {
                 onClick={() => setIsStatusFilterOpen(!isStatusFilterOpen)}
                 isExpanded={isStatusFilterOpen}
                 icon={<FilterIcon />}
+                style={{
+                  width: '220px'
+                }}
               >
                 Status: {statusFilter}
               </MenuToggle>
@@ -438,6 +441,9 @@ export const VirtualMachinesPage: React.FC = () => {
                 onClick={() => setIsOSFilterOpen(!isOSFilterOpen)}
                 isExpanded={isOSFilterOpen}
                 icon={<FilterIcon />}
+                style={{
+                  width: '260px'
+                }}
               >
                 Operating system: {osFilter}
               </MenuToggle>
