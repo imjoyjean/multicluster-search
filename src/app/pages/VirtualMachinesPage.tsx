@@ -264,22 +264,72 @@ export const VirtualMachinesPage: React.FC = () => {
         {/* Search Bar and Action Buttons Row */}
         <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }} style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>
         {/* Query Bar */}
-        <FlexItem flex={{ default: 'flex_1' }} style={{ position: 'relative', maxWidth: '600px' }}>
-          <div ref={searchContainerRef}>
-            <SearchInput
+        <FlexItem flex={{ default: 'flex_1' }} style={{ position: 'relative', maxWidth: '800px' }}>
+          {/* Custom Search Input with Chips Inside */}
+          <div 
+            ref={searchContainerRef}
+            onClick={() => queryInputRef.current?.focus()}
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 12px',
+              backgroundColor: '#ffffff',
+              border: '1px solid #6a6e73',
+              borderRadius: '3px',
+              minHeight: '36px',
+              cursor: 'text'
+            }}
+          >
+            {/* Query Chips Inside Search Bar */}
+            {queryChips.map((chip) => (
+              <Label
+                key={chip.key}
+                color="blue"
+                isCompact
+                onClose={() => removeQueryChip(chip.key)}
+              >
+                {chip.label}
+              </Label>
+            ))}
+            
+            {/* Search Input */}
+            <input
               ref={queryInputRef}
-              placeholder="Search by name or query (e.g., status:Running cluster:hub namespace:default)"
+              type="text"
+              placeholder={queryChips.length === 0 ? "Search by name or query (e.g., status:Running cluster:hub namespace:default)" : ""}
               value={queryText}
-              onChange={(_event, value) => {
-                setQueryText(value);
-                setIsAutocompleteOpen(value.length > 0);
+              onChange={(e) => {
+                setQueryText(e.target.value);
+                setIsAutocompleteOpen(e.target.value.length > 0);
               }}
               onFocus={() => queryText.length > 0 && setIsAutocompleteOpen(true)}
-              onClear={() => {
-                setQueryText('');
-                setIsAutocompleteOpen(false);
+              style={{
+                flex: 1,
+                border: 'none',
+                outline: 'none',
+                backgroundColor: 'transparent',
+                fontSize: '14px',
+                minWidth: '200px'
               }}
             />
+            
+            {/* Clear All Button */}
+            {(queryChips.length > 0 || queryText) && (
+              <Button 
+                variant="plain"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  clearAllChips();
+                }}
+                style={{ padding: '4px' }}
+              >
+                <svg fill="currentColor" height="1em" width="1em" viewBox="0 0 352 512">
+                  <path d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"/>
+                </svg>
+              </Button>
+            )}
           </div>
           
           {/* Autocomplete Menu */}
@@ -468,7 +518,7 @@ export const VirtualMachinesPage: React.FC = () => {
         </div>
         
         {/* Table */}
-        <Toolbar>
+        <Toolbar style={{ marginTop: 'var(--pf-v5-global--spacer--lg)' }}>
         <ToolbarContent>
           <ToolbarItem variant="pagination" align={{ default: 'alignRight' }}>
             <Pagination
