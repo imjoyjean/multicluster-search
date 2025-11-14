@@ -102,7 +102,7 @@ const generateMockNodes = (): Node[] => {
       name,
       status,
       roles,
-      pods: `${podsUsed}/${podsMax}`,
+      pods: `${podsUsed}`,
       memory: `${memoryUsed} GiB / ${memoryMax} GiB`,
       cpu: `${cpuUsed} / ${cpuMax} cores`,
       filesystem: `${filesystem}%`,
@@ -391,7 +391,7 @@ export const NodesPage: React.FC = () => {
         { text: 'filesystem:>40', displayText: 'filesystem:>40 (greater than 40%)' },
         { text: 'memory:>=8', displayText: 'memory:>=8 (8 GiB or more)' },
         { text: 'cpu:<4', displayText: 'cpu:<4 (less than 4 cores)' },
-        { text: 'pods:<=100', displayText: 'pods:<=100 (100 or fewer)' },
+        { text: 'pods:>90', displayText: 'pods:>90 (more than 90 pods)' },
       ];
       
       const matchingExamples = numericFieldExamples.filter(ex => 
@@ -640,8 +640,8 @@ export const NodesPage: React.FC = () => {
           bValue = b.roles;
           break;
         case 'pods':
-          aValue = parseInt(a.pods.split('/')[0]) || 0;
-          bValue = parseInt(b.pods.split('/')[0]) || 0;
+          aValue = parseInt(a.pods) || 0;
+          bValue = parseInt(b.pods) || 0;
           break;
         case 'memory':
           aValue = parseFloat(a.memory.split(' ')[0]) || 0;
