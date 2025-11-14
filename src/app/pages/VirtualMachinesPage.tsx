@@ -23,6 +23,7 @@ import {
   MenuItem,
   Divider,
   SearchInput,
+  Badge,
 } from '@patternfly/react-core';
 import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
 import { useSearchParams } from 'react-router-dom';

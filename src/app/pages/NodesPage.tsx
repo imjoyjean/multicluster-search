@@ -23,6 +23,7 @@ import {
   MenuItem,
   Divider,
   SearchInput,
+  Badge,
 } from '@patternfly/react-core';
 import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
 import { CheckCircleIcon } from '@patternfly/react-icons';
@@ -547,7 +548,9 @@ export const NodesPage: React.FC = () => {
                 variant="secondary"
                 aria-label="Cluster filter"
               >
-                Cluster {clusterFilter.length > 0 && `(${clusterFilter.length})`}
+                Cluster {clusterFilter.length > 0 && (
+                  <Badge isRead>{clusterFilter.length} selected</Badge>
+                )}
               </MenuToggle>
             )}
           >
@@ -581,7 +584,9 @@ export const NodesPage: React.FC = () => {
                 variant="secondary"
                 aria-label="Namespace filter"
               >
-                Namespace {namespaceFilter.length > 0 && `(${namespaceFilter.length})`}
+                Namespace {namespaceFilter.length > 0 && (
+                  <Badge isRead>{namespaceFilter.length} selected</Badge>
+                )}
               </MenuToggle>
             )}
           >
@@ -615,7 +620,9 @@ export const NodesPage: React.FC = () => {
                 variant="secondary"
                 aria-label="Status filter"
               >
-                Status {statusFilter.length > 0 && `(${statusFilter.length})`}
+                Status {statusFilter.length > 0 && (
+                  <Badge isRead>{statusFilter.length} selected</Badge>
+                )}
               </MenuToggle>
             )}
           >
@@ -649,7 +656,9 @@ export const NodesPage: React.FC = () => {
                 variant="secondary"
                 aria-label="Role filter"
               >
-                Role {roleFilter.length > 0 && `(${roleFilter.length})`}
+                Role {roleFilter.length > 0 && (
+                  <Badge isRead>{roleFilter.length} selected</Badge>
+                )}
               </MenuToggle>
             )}
           >
