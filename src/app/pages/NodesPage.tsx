@@ -544,7 +544,8 @@ export const NodesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsClusterFilterOpen(!isClusterFilterOpen)}
                 isExpanded={isClusterFilterOpen}
-                variant="default"
+                variant="secondary"
+                aria-label="Cluster filter"
               >
                 Cluster {clusterFilter.length > 0 && `(${clusterFilter.length})`}
               </MenuToggle>
@@ -577,7 +578,8 @@ export const NodesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsNamespaceFilterOpen(!isNamespaceFilterOpen)}
                 isExpanded={isNamespaceFilterOpen}
-                variant="default"
+                variant="secondary"
+                aria-label="Namespace filter"
               >
                 Namespace {namespaceFilter.length > 0 && `(${namespaceFilter.length})`}
               </MenuToggle>
@@ -610,7 +612,8 @@ export const NodesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsStatusFilterOpen(!isStatusFilterOpen)}
                 isExpanded={isStatusFilterOpen}
-                variant="default"
+                variant="secondary"
+                aria-label="Status filter"
               >
                 Status {statusFilter.length > 0 && `(${statusFilter.length})`}
               </MenuToggle>
@@ -643,7 +646,8 @@ export const NodesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsRoleFilterOpen(!isRoleFilterOpen)}
                 isExpanded={isRoleFilterOpen}
-                variant="default"
+                variant="secondary"
+                aria-label="Role filter"
               >
                 Role {roleFilter.length > 0 && `(${roleFilter.length})`}
               </MenuToggle>
