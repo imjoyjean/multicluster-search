@@ -545,8 +545,15 @@ export const NodesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsClusterFilterOpen(!isClusterFilterOpen)}
                 isExpanded={isClusterFilterOpen}
-                variant="secondary"
+                variant="plain"
                 aria-label="Cluster filter"
+                style={{
+                  fontSize: '16px',
+                  fontWeight: 400,
+                  borderBottom: isClusterFilterOpen ? '2px solid var(--pf-v5-global--primary-color--100)' : '2px solid transparent',
+                  borderRadius: 0,
+                  paddingBottom: '8px'
+                }}
               >
                 Cluster {clusterFilter.length > 0 && (
                   <Badge isRead>{clusterFilter.length} selected</Badge>
@@ -581,8 +588,15 @@ export const NodesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsNamespaceFilterOpen(!isNamespaceFilterOpen)}
                 isExpanded={isNamespaceFilterOpen}
-                variant="secondary"
+                variant="plain"
                 aria-label="Namespace filter"
+                style={{
+                  fontSize: '16px',
+                  fontWeight: 400,
+                  borderBottom: isNamespaceFilterOpen ? '2px solid var(--pf-v5-global--primary-color--100)' : '2px solid transparent',
+                  borderRadius: 0,
+                  paddingBottom: '8px'
+                }}
               >
                 Namespace {namespaceFilter.length > 0 && (
                   <Badge isRead>{namespaceFilter.length} selected</Badge>
@@ -617,8 +631,15 @@ export const NodesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsStatusFilterOpen(!isStatusFilterOpen)}
                 isExpanded={isStatusFilterOpen}
-                variant="secondary"
+                variant="plain"
                 aria-label="Status filter"
+                style={{
+                  fontSize: '16px',
+                  fontWeight: 400,
+                  borderBottom: isStatusFilterOpen ? '2px solid var(--pf-v5-global--primary-color--100)' : '2px solid transparent',
+                  borderRadius: 0,
+                  paddingBottom: '8px'
+                }}
               >
                 Status {statusFilter.length > 0 && (
                   <Badge isRead>{statusFilter.length} selected</Badge>
@@ -653,8 +674,15 @@ export const NodesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsRoleFilterOpen(!isRoleFilterOpen)}
                 isExpanded={isRoleFilterOpen}
-                variant="secondary"
+                variant="plain"
                 aria-label="Role filter"
+                style={{
+                  fontSize: '16px',
+                  fontWeight: 400,
+                  borderBottom: isRoleFilterOpen ? '2px solid var(--pf-v5-global--primary-color--100)' : '2px solid transparent',
+                  borderRadius: 0,
+                  paddingBottom: '8px'
+                }}
               >
                 Role {roleFilter.length > 0 && (
                   <Badge isRead>{roleFilter.length} selected</Badge>

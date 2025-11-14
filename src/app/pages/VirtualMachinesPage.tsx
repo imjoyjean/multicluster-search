@@ -405,8 +405,15 @@ export const VirtualMachinesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsStatusFilterOpen(!isStatusFilterOpen)}
                 isExpanded={isStatusFilterOpen}
-                variant="secondary"
+                variant="plain"
                 aria-label="Status filter"
+                style={{
+                  fontSize: '16px',
+                  fontWeight: 400,
+                  borderBottom: isStatusFilterOpen ? '2px solid var(--pf-v5-global--primary-color--100)' : '2px solid transparent',
+                  borderRadius: 0,
+                  paddingBottom: '8px'
+                }}
               >
                 Status: {statusFilter}
               </MenuToggle>
@@ -437,8 +444,15 @@ export const VirtualMachinesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsOSFilterOpen(!isOSFilterOpen)}
                 isExpanded={isOSFilterOpen}
-                variant="secondary"
+                variant="plain"
                 aria-label="Operating system filter"
+                style={{
+                  fontSize: '16px',
+                  fontWeight: 400,
+                  borderBottom: isOSFilterOpen ? '2px solid var(--pf-v5-global--primary-color--100)' : '2px solid transparent',
+                  borderRadius: 0,
+                  paddingBottom: '8px'
+                }}
               >
                 Operating system: {osFilter}
               </MenuToggle>
