@@ -37,9 +37,17 @@ import {
   FormGroup,
   Grid,
   GridItem,
+  DataList,
+  DataListItem,
+  DataListItemRow,
+  DataListItemCells,
+  DataListCell,
+  DataListDragButton,
+  DataListControl,
 } from '@patternfly/react-core';
+import { DragDrop, Draggable, Droppable } from '@patternfly/react-core';
 import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
-import { CheckCircleIcon, FilterIcon, SearchIcon, ColumnsIcon } from '@patternfly/react-icons';
+import { CheckCircleIcon, FilterIcon, SearchIcon, ColumnsIcon, GripVerticalIcon } from '@patternfly/react-icons';
 import { useSearchParams } from 'react-router-dom';
 
 interface Node {
@@ -134,8 +142,8 @@ export const NodesPage: React.FC = () => {
   const [isRoleFilterOpen, setIsRoleFilterOpen] = React.useState(false);
   
   // Column management
-  const columnConfig: Record<string, { label: string; isDefault: boolean }> = {
-    name: { label: 'Name', isDefault: true },
+  const columnConfig: Record<string, { label: string; isDefault: boolean; isRequired?: boolean }> = {
+    name: { label: 'Name', isDefault: true, isRequired: true },
     status: { label: 'Status', isDefault: true },
     roles: { label: 'Roles', isDefault: true },
     pods: { label: 'Pods', isDefault: true },
@@ -149,7 +157,6 @@ export const NodesPage: React.FC = () => {
   };
   
   const defaultColumns = Object.keys(columnConfig).filter(key => columnConfig[key].isDefault);
-  const additionalColumns = Object.keys(columnConfig).filter(key => !columnConfig[key].isDefault);
   const maxColumns = 9;
   
   const [isManageColumnsOpen, setIsManageColumnsOpen] = React.useState(false);
@@ -158,13 +165,34 @@ export const NodesPage: React.FC = () => {
     return saved ? JSON.parse(saved) : defaultColumns;
   });
   const [tempVisibleColumns, setTempVisibleColumns] = React.useState<string[]>(visibleColumns);
+  const [draggedItemId, setDraggedItemId] = React.useState<string | null>(null);
   
   const handleColumnToggle = (column: string, checked: boolean) => {
+    // Prevent unchecking required columns
+    if (columnConfig[column].isRequired) {
+      return;
+    }
+    
     if (checked && tempVisibleColumns.length < maxColumns) {
       setTempVisibleColumns([...tempVisibleColumns, column]);
     } else if (!checked) {
       setTempVisibleColumns(tempVisibleColumns.filter(col => col !== column));
     }
+  };
+  
+  const handleDragStart = (id: string) => {
+    setDraggedItemId(id);
+  };
+  
+  const handleDragMove = (oldIndex: number, newIndex: number) => {
+    const newColumns = [...tempVisibleColumns];
+    const [draggedItem] = newColumns.splice(oldIndex, 1);
+    newColumns.splice(newIndex, 0, draggedItem);
+    setTempVisibleColumns(newColumns);
+  };
+  
+  const handleDragEnd = () => {
+    setDraggedItemId(null);
   };
   
   const handleSaveColumns = () => {
@@ -896,7 +924,7 @@ export const NodesPage: React.FC = () => {
         <ToolbarContent>
           <ToolbarItem>
             <Button 
-              variant="link" 
+              variant="secondary" 
               icon={<ColumnsIcon />}
               onClick={() => {
                 setTempVisibleColumns(visibleColumns);
@@ -1004,62 +1032,118 @@ export const NodesPage: React.FC = () => {
           ]}
         >
           <div style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>
-            Selected columns will appear in the table.
+            Selected columns will appear in the table. Drag to reorder.
           </div>
           
           <Alert
             variant="info"
             isInline
-            title={`You can select up to ${maxColumns} columns`}
+            title={`You can select up to ${maxColumns} columns. Name is always visible.`}
             style={{ marginBottom: 'var(--pf-v5-global--spacer--lg)' }}
           />
           
-          <Grid hasGutter>
-            <GridItem span={6}>
-              <div style={{ 
-                fontWeight: 'bold', 
-                marginBottom: 'var(--pf-v5-global--spacer--md)',
-                fontSize: 'var(--pf-v5-global--FontSize--sm)'
-              }}>
-                Default Node columns
-              </div>
-              <Form>
-                {defaultColumns.map(column => (
-                  <FormGroup key={column}>
-                    <Checkbox
-                      id={`column-${column}`}
-                      label={columnConfig[column].label}
-                      isChecked={tempVisibleColumns.includes(column)}
-                      onChange={(event, checked) => handleColumnToggle(column, checked)}
-                      isDisabled={!tempVisibleColumns.includes(column) && tempVisibleColumns.length >= maxColumns}
-                    />
-                  </FormGroup>
+          <div style={{ 
+            fontWeight: 'bold', 
+            marginBottom: 'var(--pf-v5-global--spacer--md)',
+            fontSize: 'var(--pf-v5-global--FontSize--sm)'
+          }}>
+            Selected columns
+          </div>
+          
+          {/* Drag and Drop List for Selected Columns */}
+          <DragDrop onDrop={(source, dest) => {
+            if (dest) {
+              handleDragMove(source.index, dest.index);
+            }
+            return true;
+          }}>
+            <Droppable>
+              <DataList 
+                aria-label="draggable data list"
+                isCompact
+                style={{ marginBottom: 'var(--pf-v5-global--spacer--lg)' }}
+              >
+                {tempVisibleColumns.map((column, index) => (
+                  <Draggable key={column} hasNoWrapper>
+                    <DataListItem aria-labelledby={`column-${column}`}>
+                      <DataListItemRow>
+                        <DataListControl>
+                          <DataListDragButton
+                            aria-label={`Reorder ${columnConfig[column].label}`}
+                            aria-describedby={`column-${column}`}
+                            aria-pressed="false"
+                          />
+                        </DataListControl>
+                        <DataListItemCells
+                          dataListCells={[
+                            <DataListCell key="primary content" style={{ 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              justifyContent: 'space-between',
+                              width: '100%'
+                            }}>
+                              <span id={`column-${column}`}>
+                                {columnConfig[column].label}
+                                {columnConfig[column].isRequired && 
+                                  <span style={{ 
+                                    marginLeft: '8px', 
+                                    color: 'var(--pf-v5-global--Color--200)',
+                                    fontSize: 'var(--pf-v5-global--FontSize--sm)'
+                                  }}>
+                                    (required)
+                                  </span>
+                                }
+                              </span>
+                              {!columnConfig[column].isRequired && (
+                                <Button 
+                                  variant="link" 
+                                  isDanger
+                                  onClick={() => handleColumnToggle(column, false)}
+                                  style={{ padding: '0' }}
+                                >
+                                  Remove
+                                </Button>
+                              )}
+                            </DataListCell>,
+                          ]}
+                        />
+                      </DataListItemRow>
+                    </DataListItem>
+                  </Draggable>
                 ))}
-              </Form>
-            </GridItem>
-            <GridItem span={6}>
-              <div style={{ 
-                fontWeight: 'bold', 
-                marginBottom: 'var(--pf-v5-global--spacer--md)',
-                fontSize: 'var(--pf-v5-global--FontSize--sm)'
-              }}>
-                Additional columns
-              </div>
-              <Form>
-                {additionalColumns.map(column => (
-                  <FormGroup key={column}>
-                    <Checkbox
-                      id={`column-${column}`}
-                      label={columnConfig[column].label}
-                      isChecked={tempVisibleColumns.includes(column)}
-                      onChange={(event, checked) => handleColumnToggle(column, checked)}
-                      isDisabled={!tempVisibleColumns.includes(column) && tempVisibleColumns.length >= maxColumns}
-                    />
-                  </FormGroup>
-                ))}
-              </Form>
-            </GridItem>
-          </Grid>
+              </DataList>
+            </Droppable>
+          </DragDrop>
+          
+          {/* Available Columns to Add */}
+          <div style={{ 
+            fontWeight: 'bold', 
+            marginBottom: 'var(--pf-v5-global--spacer--md)',
+            fontSize: 'var(--pf-v5-global--FontSize--sm)',
+            marginTop: 'var(--pf-v5-global--spacer--lg)'
+          }}>
+            Available columns
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            flexWrap: 'wrap', 
+            gap: 'var(--pf-v5-global--spacer--sm)' 
+          }}>
+            {Object.keys(columnConfig)
+              .filter(column => !tempVisibleColumns.includes(column))
+              .map(column => (
+                <Button
+                  key={column}
+                  variant="secondary"
+                  onClick={() => handleColumnToggle(column, true)}
+                  isDisabled={tempVisibleColumns.length >= maxColumns}
+                  style={{ marginBottom: 'var(--pf-v5-global--spacer--xs)' }}
+                >
+                  + {columnConfig[column].label}
+                </Button>
+              ))}
+          </div>
           
           <div style={{ marginTop: 'var(--pf-v5-global--spacer--lg)' }}>
             <Button variant="link" onClick={handleRestoreDefaults}>
