@@ -509,15 +509,20 @@ export const VirtualMachinesPage: React.FC = () => {
                         {section.items.map((item, itemIndex) => (
                           <MenuItem 
                             key={`${sectionIndex}-${itemIndex}`}
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              
                               // Check if it's just a field keyword (ends with : and nothing after)
                               const fieldKeywordMatch = item.text.match(/^(name|status|os|cluster|namespace|cpu|memory|disk|ip):$/i);
                               
                               if (fieldKeywordMatch) {
                                 // Just insert the field keyword into the search box and keep autocomplete open
                                 setQueryText(item.text);
-                                setIsAutocompleteOpen(true);
-                                setTimeout(() => queryInputRef.current?.focus(), 0);
+                                setTimeout(() => {
+                                  setIsAutocompleteOpen(true);
+                                  queryInputRef.current?.focus();
+                                }, 10);
                               } else {
                                 // Check if it's a complete label:value pattern
                                 const labelValueMatch = item.text.match(/^(name|status|os|cluster|namespace|cpu|memory|disk|ip):(.+)$/i);
