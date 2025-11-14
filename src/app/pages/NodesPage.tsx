@@ -43,73 +43,59 @@ interface Node {
   namespace: string;
 }
 
-const mockNodes: Node[] = [
-  {
-    name: 'ip-10-0-45-182.ec2.internal',
-    status: 'Ready',
-    roles: 'worker',
-    pods: '24/110',
-    memory: '8.5 GiB / 16 GiB',
-    cpu: '1.2 / 4 cores',
-    filesystem: '45%',
-    created: '2 days ago',
-    instanceType: 'm5.xlarge',
-    cluster: 'production-east',
-    namespace: 'default',
-  },
-  {
-    name: 'ip-10-0-67-234.ec2.internal',
-    status: 'Ready',
-    roles: 'control-plane,master',
-    pods: '18/110',
-    memory: '12.1 GiB / 32 GiB',
-    cpu: '2.4 / 8 cores',
-    filesystem: '62%',
-    created: '5 days ago',
-    instanceType: 'm5.2xlarge',
-    cluster: 'production-east',
-    namespace: 'kube-system',
-  },
-  {
-    name: 'ip-10-0-89-156.ec2.internal',
-    status: 'Ready',
-    roles: 'worker',
-    pods: '31/110',
-    memory: '6.8 GiB / 16 GiB',
-    cpu: '0.9 / 4 cores',
-    filesystem: '38%',
-    created: '1 day ago',
-    instanceType: 'm5.xlarge',
-    cluster: 'staging-west',
-    namespace: 'default',
-  },
-  {
-    name: 'ip-10-0-123-45.ec2.internal',
-    status: 'Ready',
-    roles: 'worker',
-    pods: '27/110',
-    memory: '10.2 GiB / 16 GiB',
-    cpu: '1.8 / 4 cores',
-    filesystem: '51%',
-    created: '3 days ago',
-    instanceType: 'm5.xlarge',
-    cluster: 'production-west',
-    namespace: 'default',
-  },
-  {
-    name: 'ip-10-0-234-67.ec2.internal',
-    status: 'Ready',
-    roles: 'worker',
-    pods: '22/110',
-    memory: '7.3 GiB / 16 GiB',
-    cpu: '1.1 / 4 cores',
-    filesystem: '42%',
-    created: '4 days ago',
-    instanceType: 'm5.xlarge',
-    cluster: 'staging-east',
-    namespace: 'monitoring',
-  },
-];
+// Generate 200 mock nodes with varied metadata
+const generateMockNodes = (): Node[] => {
+  const clusters = ['production-east', 'production-west', 'staging-east', 'staging-west', 'dev-central', 'qa-north'];
+  const namespaces = ['default', 'kube-system', 'monitoring', 'logging', 'app-prod', 'app-staging', 'database', 'ingress'];
+  const statuses = ['Ready', 'Ready', 'Ready', 'Ready', 'Ready', 'NotReady', 'SchedulingDisabled', 'Unknown'];
+  const rolesList = ['worker', 'worker', 'worker', 'worker', 'control-plane,master', 'worker,ingress'];
+  const instanceTypes = ['m5.xlarge', 'm5.2xlarge', 'm5.4xlarge', 't3.large', 't3.xlarge', 'c5.2xlarge'];
+  const days = ['1 day ago', '2 days ago', '3 days ago', '5 days ago', '1 week ago', '2 weeks ago', '1 month ago'];
+  
+  const nodes: Node[] = [];
+  
+  for (let i = 0; i < 200; i++) {
+    const cluster = clusters[i % clusters.length];
+    const namespace = namespaces[i % namespaces.length];
+    const status = statuses[i % statuses.length];
+    const roles = rolesList[i % rolesList.length];
+    const instanceType = instanceTypes[i % instanceTypes.length];
+    const created = days[i % days.length];
+    
+    // Generate varied metrics
+    const podsUsed = Math.floor(Math.random() * 100) + 10;
+    const podsMax = 110;
+    const memoryUsed = (Math.random() * 28 + 4).toFixed(1);
+    const memoryMax = instanceType.includes('2xlarge') ? 32 : instanceType.includes('4xlarge') ? 64 : 16;
+    const cpuUsed = (Math.random() * 6 + 0.5).toFixed(1);
+    const cpuMax = instanceType.includes('2xlarge') ? 8 : instanceType.includes('4xlarge') ? 16 : 4;
+    const filesystem = Math.floor(Math.random() * 70) + 20;
+    
+    // Generate realistic node name
+    const octet1 = Math.floor(Math.random() * 255);
+    const octet2 = Math.floor(Math.random() * 255);
+    const octet3 = Math.floor(Math.random() * 255);
+    const name = `ip-10-${octet1}-${octet2}-${octet3}.ec2.internal`;
+    
+    nodes.push({
+      name,
+      status,
+      roles,
+      pods: `${podsUsed}/${podsMax}`,
+      memory: `${memoryUsed} GiB / ${memoryMax} GiB`,
+      cpu: `${cpuUsed} / ${cpuMax} cores`,
+      filesystem: `${filesystem}%`,
+      created,
+      instanceType,
+      cluster,
+      namespace,
+    });
+  }
+  
+  return nodes;
+};
+
+const mockNodes: Node[] = generateMockNodes();
 
 export const NodesPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
