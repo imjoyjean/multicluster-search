@@ -301,40 +301,74 @@ export const NodesPage: React.FC = () => {
     
     if (filterPrefixMatch) {
       const filterType = filterPrefixMatch[1].toLowerCase();
-      const afterColon = queryText.substring(filterType.length + 1).toLowerCase();
+      const afterColon = queryText.substring(filterType.length + 1);
       
       if (filterType === 'name') {
         const matches = mockNodes
-          .filter(node => node.name.toLowerCase().includes(afterColon))
-          .slice(0, 5)
+          .filter(node => !afterColon || node.name.toLowerCase().includes(afterColon.toLowerCase()))
+          .slice(0, 10)
           .map(node => ({ text: `name:${node.name}`, displayText: node.name }));
         if (matches.length > 0) sections.push({ title: 'Name', items: matches });
       } else if (filterType === 'cluster') {
         const matches = uniqueClusters
-          .filter(cluster => cluster.toLowerCase().includes(afterColon))
+          .filter(cluster => !afterColon || cluster.toLowerCase().includes(afterColon.toLowerCase()))
           .map(cluster => ({ text: `cluster:${cluster}`, displayText: cluster }));
         if (matches.length > 0) sections.push({ title: 'Cluster', items: matches });
       } else if (filterType === 'namespace') {
         const matches = uniqueNamespaces
-          .filter(ns => ns.toLowerCase().includes(afterColon))
+          .filter(ns => !afterColon || ns.toLowerCase().includes(afterColon.toLowerCase()))
           .map(ns => ({ text: `namespace:${ns}`, displayText: ns }));
         if (matches.length > 0) sections.push({ title: 'Namespace', items: matches });
       } else if (filterType === 'status') {
         const matches = uniqueStatuses
-          .filter(status => status.toLowerCase().includes(afterColon))
+          .filter(status => !afterColon || status.toLowerCase().includes(afterColon.toLowerCase()))
           .map(status => ({ text: `status:${status}`, displayText: status }));
         if (matches.length > 0) sections.push({ title: 'Status', items: matches });
       } else if (filterType === 'role') {
         const matches = uniqueRoles
-          .filter(role => role.toLowerCase().includes(afterColon))
+          .filter(role => !afterColon || role.toLowerCase().includes(afterColon.toLowerCase()))
           .map(role => ({ text: `role:${role}`, displayText: role }));
         if (matches.length > 0) sections.push({ title: 'Role', items: matches });
       } else if (filterType === 'instancetype') {
         const instanceTypes = Array.from(new Set(mockNodes.map(n => n.instanceType)));
         const matches = instanceTypes
-          .filter(type => type.toLowerCase().includes(afterColon))
+          .filter(type => !afterColon || type.toLowerCase().includes(afterColon.toLowerCase()))
           .map(type => ({ text: `instanceType:${type}`, displayText: type }));
         if (matches.length > 0) sections.push({ title: 'Instance Type', items: matches });
+      } else if (filterType === 'pods') {
+        const podsValues = Array.from(new Set(mockNodes.map(n => n.pods)));
+        const matches = podsValues
+          .filter(pods => !afterColon || pods.toLowerCase().includes(afterColon.toLowerCase()))
+          .slice(0, 10)
+          .map(pods => ({ text: `pods:${pods}`, displayText: pods }));
+        if (matches.length > 0) sections.push({ title: 'Pods', items: matches });
+      } else if (filterType === 'memory') {
+        const memoryValues = Array.from(new Set(mockNodes.map(n => n.memory)));
+        const matches = memoryValues
+          .filter(memory => !afterColon || memory.toLowerCase().includes(afterColon.toLowerCase()))
+          .slice(0, 10)
+          .map(memory => ({ text: `memory:${memory}`, displayText: memory }));
+        if (matches.length > 0) sections.push({ title: 'Memory', items: matches });
+      } else if (filterType === 'cpu') {
+        const cpuValues = Array.from(new Set(mockNodes.map(n => n.cpu)));
+        const matches = cpuValues
+          .filter(cpu => !afterColon || cpu.toLowerCase().includes(afterColon.toLowerCase()))
+          .slice(0, 10)
+          .map(cpu => ({ text: `cpu:${cpu}`, displayText: cpu }));
+        if (matches.length > 0) sections.push({ title: 'CPU', items: matches });
+      } else if (filterType === 'filesystem') {
+        const filesystemValues = Array.from(new Set(mockNodes.map(n => n.filesystem)));
+        const matches = filesystemValues
+          .filter(filesystem => !afterColon || filesystem.toLowerCase().includes(afterColon.toLowerCase()))
+          .slice(0, 10)
+          .map(filesystem => ({ text: `filesystem:${filesystem}`, displayText: filesystem }));
+        if (matches.length > 0) sections.push({ title: 'Filesystem', items: matches });
+      } else if (filterType === 'created') {
+        const createdValues = Array.from(new Set(mockNodes.map(n => n.created)));
+        const matches = createdValues
+          .filter(created => !afterColon || created.toLowerCase().includes(afterColon.toLowerCase()))
+          .map(created => ({ text: `created:${created}`, displayText: created }));
+        if (matches.length > 0) sections.push({ title: 'Created', items: matches });
       }
     } else {
       // Regular search - show suggestions for searchable fields

@@ -161,30 +161,58 @@ export const VirtualMachinesPage: React.FC = () => {
     
     if (filterPrefixMatch) {
       const filterType = filterPrefixMatch[1].toLowerCase();
-      const afterColon = queryText.substring(filterType.length + 1).toLowerCase();
+      const afterColon = queryText.substring(filterType.length + 1);
       
       if (filterType === 'name') {
         const matches = mockVMs
-          .filter(vm => vm.name.toLowerCase().includes(afterColon))
-          .slice(0, 5)
+          .filter(vm => !afterColon || vm.name.toLowerCase().includes(afterColon.toLowerCase()))
+          .slice(0, 10)
           .map(vm => ({ text: `name:${vm.name}`, displayText: vm.name }));
         if (matches.length > 0) sections.push({ title: 'Name', items: matches });
       } else if (filterType === 'status') {
-        const matches = availableStatuses.filter(s => s !== 'All' && s.toLowerCase().includes(afterColon))
+        const matches = availableStatuses.filter(s => s !== 'All' && (!afterColon || s.toLowerCase().includes(afterColon.toLowerCase())))
           .map(status => ({ text: `status:${status}`, displayText: status }));
         if (matches.length > 0) sections.push({ title: 'Status', items: matches });
       } else if (filterType === 'os') {
-        const matches = availableOSs.filter(os => os !== 'All' && os.toLowerCase().includes(afterColon))
+        const matches = availableOSs.filter(os => os !== 'All' && (!afterColon || os.toLowerCase().includes(afterColon.toLowerCase())))
           .map(os => ({ text: `os:${os}`, displayText: os }));
         if (matches.length > 0) sections.push({ title: 'Operating System', items: matches });
       } else if (filterType === 'cluster') {
-        const matches = availableClusters.filter(cluster => cluster.toLowerCase().includes(afterColon))
+        const matches = availableClusters.filter(cluster => !afterColon || cluster.toLowerCase().includes(afterColon.toLowerCase()))
           .map(cluster => ({ text: `cluster:${cluster}`, displayText: cluster }));
         if (matches.length > 0) sections.push({ title: 'Cluster', items: matches });
       } else if (filterType === 'namespace') {
-        const matches = availableNamespaces.filter(namespace => namespace.toLowerCase().includes(afterColon))
+        const matches = availableNamespaces.filter(namespace => !afterColon || namespace.toLowerCase().includes(afterColon.toLowerCase()))
           .map(namespace => ({ text: `namespace:${namespace}`, displayText: namespace }));
         if (matches.length > 0) sections.push({ title: 'Namespace', items: matches });
+      } else if (filterType === 'cpu') {
+        const cpuValues = Array.from(new Set(mockVMs.map(vm => vm.cpu)));
+        const matches = cpuValues
+          .filter(cpu => !afterColon || cpu.toLowerCase().includes(afterColon.toLowerCase()))
+          .slice(0, 10)
+          .map(cpu => ({ text: `cpu:${cpu}`, displayText: cpu }));
+        if (matches.length > 0) sections.push({ title: 'CPU', items: matches });
+      } else if (filterType === 'memory') {
+        const memoryValues = Array.from(new Set(mockVMs.map(vm => vm.memory)));
+        const matches = memoryValues
+          .filter(memory => !afterColon || memory.toLowerCase().includes(afterColon.toLowerCase()))
+          .slice(0, 10)
+          .map(memory => ({ text: `memory:${memory}`, displayText: memory }));
+        if (matches.length > 0) sections.push({ title: 'Memory', items: matches });
+      } else if (filterType === 'disk') {
+        const diskValues = Array.from(new Set(mockVMs.map(vm => vm.disk)));
+        const matches = diskValues
+          .filter(disk => !afterColon || disk.toLowerCase().includes(afterColon.toLowerCase()))
+          .slice(0, 10)
+          .map(disk => ({ text: `disk:${disk}`, displayText: disk }));
+        if (matches.length > 0) sections.push({ title: 'Disk', items: matches });
+      } else if (filterType === 'ip') {
+        const ipValues = Array.from(new Set(mockVMs.map(vm => vm.ip)));
+        const matches = ipValues
+          .filter(ip => !afterColon || ip.toLowerCase().includes(afterColon.toLowerCase()))
+          .slice(0, 10)
+          .map(ip => ({ text: `ip:${ip}`, displayText: ip }));
+        if (matches.length > 0) sections.push({ title: 'IP Address', items: matches });
       }
     } else {
       // Regular search - show suggestions for searchable fields
