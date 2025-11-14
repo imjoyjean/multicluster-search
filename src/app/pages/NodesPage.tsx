@@ -172,12 +172,14 @@ export const NodesPage: React.FC = () => {
   const [namespaceFilter, setNamespaceFilter] = React.useState<string[]>([]);
   const [statusFilter, setStatusFilter] = React.useState<string[]>([]);
   const [roleFilter, setRoleFilter] = React.useState<string[]>([]);
+  const [instanceTypeFilter, setInstanceTypeFilter] = React.useState<string[]>([]);
   
   // Dropdown open states
   const [isClusterFilterOpen, setIsClusterFilterOpen] = React.useState(false);
   const [isNamespaceFilterOpen, setIsNamespaceFilterOpen] = React.useState(false);
   const [isStatusFilterOpen, setIsStatusFilterOpen] = React.useState(false);
   const [isRoleFilterOpen, setIsRoleFilterOpen] = React.useState(false);
+  const [isInstanceTypeFilterOpen, setIsInstanceTypeFilterOpen] = React.useState(false);
   
   // Column management
   const columnConfig: Record<string, { label: string; isDefault: boolean; isRequired?: boolean }> = {
@@ -290,6 +292,7 @@ export const NodesPage: React.FC = () => {
     mockNodes.forEach(n => n.roles.split(',').forEach(r => roles.add(r.trim())));
     return Array.from(roles);
   }, []);
+  const uniqueInstanceTypes = React.useMemo(() => Array.from(new Set(mockNodes.map(n => n.instanceType))), []);
 
   // Add query chip
   const addQueryChip = (type: string, label: string, value: string) => {
@@ -312,6 +315,8 @@ export const NodesPage: React.FC = () => {
         setStatusFilter(statusFilter.filter(s => s !== chip.value));
       } else if (chip.type === 'role') {
         setRoleFilter(roleFilter.filter(r => r !== chip.value));
+      } else if (chip.type === 'instancetype' || chip.type === 'instanceType') {
+        setInstanceTypeFilter(instanceTypeFilter.filter(i => i !== chip.value));
       }
     }
     setQueryChips(queryChips.filter(chip => chip.key !== key));
@@ -325,6 +330,7 @@ export const NodesPage: React.FC = () => {
     setNamespaceFilter([]);
     setStatusFilter([]);
     setRoleFilter([]);
+    setInstanceTypeFilter([]);
   };
 
   // Autocomplete suggestions
@@ -778,6 +784,19 @@ export const NodesPage: React.FC = () => {
     }
   };
 
+  const handleInstanceTypeFilterChange = (instanceType: string, checked: boolean) => {
+    const newFilter = checked 
+      ? [...instanceTypeFilter, instanceType]
+      : instanceTypeFilter.filter(i => i !== instanceType);
+    setInstanceTypeFilter(newFilter);
+    
+    if (checked) {
+      addQueryChip('instancetype', `instanceType:${instanceType}`, instanceType);
+    } else {
+      removeQueryChip(`instancetype-${instanceType.replace(/\s+/g, '-')}`);
+    }
+  };
+
   // Helper function to render cell content
   const renderCellContent = (node: Node, column: string) => {
     switch (column) {
@@ -1175,6 +1194,42 @@ export const NodesPage: React.FC = () => {
                     label={role}
                     isChecked={roleFilter.includes(role)}
                     onChange={(event, checked) => handleRoleFilterChange(role, checked)}
+                  />
+                </DropdownItem>
+              ))}
+            </DropdownList>
+          </Dropdown>
+        </FlexItem>
+        <FlexItem>
+          <Dropdown
+            isOpen={isInstanceTypeFilterOpen}
+            onSelect={() => {}}
+            onOpenChange={(isOpen: boolean) => setIsInstanceTypeFilterOpen(isOpen)}
+            toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+              <MenuToggle 
+                ref={toggleRef} 
+                onClick={() => setIsInstanceTypeFilterOpen(!isInstanceTypeFilterOpen)}
+                isExpanded={isInstanceTypeFilterOpen}
+                icon={<FilterIcon />}
+                style={{
+                  width: '180px'
+                }}
+              >
+                Instance type {instanceTypeFilter.length > 0 && <Badge isRead>{instanceTypeFilter.length}</Badge>}
+              </MenuToggle>
+            )}
+          >
+            <DropdownList>
+              {uniqueInstanceTypes.map(instanceType => (
+                <DropdownItem 
+                  key={instanceType}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Checkbox
+                    id={`instanceType-${instanceType}`}
+                    label={instanceType}
+                    isChecked={instanceTypeFilter.includes(instanceType)}
+                    onChange={(event, checked) => handleInstanceTypeFilterChange(instanceType, checked)}
                   />
                 </DropdownItem>
               ))}
