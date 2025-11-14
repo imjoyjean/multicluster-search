@@ -420,7 +420,7 @@ export const NodesPage: React.FC = () => {
     <>
       <PageSection variant={PageSectionVariants.default} padding={{ default: 'noPadding' }}>
         <div style={{ 
-          backgroundColor: 'var(--pf-v5-global--BackgroundColor--200)',
+          backgroundColor: '#ffffff',
           padding: 'var(--pf-v5-global--spacer--md) var(--pf-v5-global--spacer--lg)'
         }}>
           <Title headingLevel="h1" size="xl" style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>Nodes</Title>
@@ -545,11 +545,9 @@ export const NodesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsClusterFilterOpen(!isClusterFilterOpen)}
                 isExpanded={isClusterFilterOpen}
-                variant="plain"
                 icon={<FilterIcon />}
                 style={{
-                  width: '160px',
-                  fontWeight: 400
+                  width: '160px'
                 }}
               >
                 Cluster
@@ -583,11 +581,9 @@ export const NodesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsNamespaceFilterOpen(!isNamespaceFilterOpen)}
                 isExpanded={isNamespaceFilterOpen}
-                variant="plain"
                 icon={<FilterIcon />}
                 style={{
-                  width: '160px',
-                  fontWeight: 400
+                  width: '160px'
                 }}
               >
                 Namespace
@@ -621,11 +617,9 @@ export const NodesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsStatusFilterOpen(!isStatusFilterOpen)}
                 isExpanded={isStatusFilterOpen}
-                variant="plain"
                 icon={<FilterIcon />}
                 style={{
-                  width: '160px',
-                  fontWeight: 400
+                  width: '160px'
                 }}
               >
                 Status
@@ -659,11 +653,9 @@ export const NodesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsRoleFilterOpen(!isRoleFilterOpen)}
                 isExpanded={isRoleFilterOpen}
-                variant="plain"
                 icon={<FilterIcon />}
                 style={{
-                  width: '160px',
-                  fontWeight: 400
+                  width: '160px'
                 }}
               >
                 Role
