@@ -1259,6 +1259,9 @@ export const NodesPage: React.FC = () => {
             <Button key="save" variant="primary" onClick={handleSaveColumns}>
               Save
             </Button>,
+            <Button key="restore" variant="link" onClick={handleRestoreDefaults}>
+              Restore default columns
+            </Button>,
             <Button key="cancel" variant="link" onClick={handleCancelColumns}>
               Cancel
             </Button>,
@@ -1348,14 +1351,14 @@ export const NodesPage: React.FC = () => {
             </Droppable>
           </DragDrop>
           
-          {/* Available Columns to Add */}
+          {/* Additional Columns to Add */}
           <div style={{ 
             fontWeight: 'bold', 
             marginBottom: 'var(--pf-v5-global--spacer--md)',
             fontSize: 'var(--pf-v5-global--FontSize--sm)',
             marginTop: 'var(--pf-v5-global--spacer--lg)'
           }}>
-            Available columns
+            Additional columns
           </div>
           
           <div style={{ 
@@ -1376,12 +1379,6 @@ export const NodesPage: React.FC = () => {
                   + {columnConfig[column].label}
                 </Button>
               ))}
-          </div>
-          
-          <div style={{ marginTop: 'var(--pf-v5-global--spacer--lg)' }}>
-            <Button variant="link" onClick={handleRestoreDefaults}>
-              Restore default columns
-            </Button>
           </div>
         </Modal>
       </PageSection>
