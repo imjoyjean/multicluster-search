@@ -266,7 +266,7 @@ export const VirtualMachinesPage: React.FC = () => {
             ref={searchContainerRef}
             onClick={() => queryInputRef.current?.focus()}
             style={{
-              border: '1px solid var(--pf-v5-global--BorderColor--200)',
+              border: '1px solid #d2d2d2',
               borderRadius: '3px',
               padding: '6px 12px',
               minHeight: '36px',
@@ -274,10 +274,9 @@ export const VirtualMachinesPage: React.FC = () => {
               alignItems: 'center',
               gap: '8px',
               flexWrap: 'wrap',
-              backgroundColor: 'var(--pf-v5-global--BackgroundColor--100)',
+              backgroundColor: '#ffffff',
               cursor: 'text',
-              width: '100%',
-              boxShadow: 'inset 0 1px 1px rgba(3, 3, 3, 0.05)'
+              width: '100%'
             }}
           >
             <input
@@ -325,8 +324,8 @@ export const VirtualMachinesPage: React.FC = () => {
                 right: 0,
                 marginTop: '4px',
                 zIndex: 1000,
-                backgroundColor: 'var(--pf-v5-global--BackgroundColor--100)',
-                border: '1px solid var(--pf-v5-global--BorderColor--200)',
+                backgroundColor: '#ffffff',
+                border: '1px solid #d2d2d2',
                 borderRadius: '3px',
                 boxShadow: '0 0.25rem 0.5rem 0rem rgba(3, 3, 3, 0.2), 0 0 0.25rem 0 rgba(3, 3, 3, 0.12)',
                 maxHeight: '400px',
