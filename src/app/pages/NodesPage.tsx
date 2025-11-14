@@ -416,9 +416,9 @@ export const NodesPage: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light} padding={{ default: 'noPadding' }}>
+      <PageSection variant={PageSectionVariants.default} padding={{ default: 'noPadding' }}>
         <div style={{ padding: 'var(--pf-v5-global--spacer--md) var(--pf-v5-global--spacer--lg) 0' }}>
-          <Title headingLevel="h1" size="2xl" style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>Nodes</Title>
+          <Title headingLevel="h1" size="xl" style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>Nodes</Title>
         </div>
       
         <div style={{ padding: '0 var(--pf-v5-global--spacer--lg) var(--pf-v5-global--spacer--md)' }}>
@@ -434,15 +434,15 @@ export const NodesPage: React.FC = () => {
           ref={searchContainerRef}
           onClick={handleSearchContainerClick}
           style={{
-            border: '1px solid var(--pf-t--global--border--color--default)',
-            borderRadius: 'var(--pf-t--global--border--radius--small)',
-            padding: '8px 12px',
-            minHeight: '40px',
+            border: '1px solid var(--pf-v5-global--BorderColor--100)',
+            borderRadius: '3px',
+            padding: '6px 12px',
+            minHeight: '36px',
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
             flexWrap: 'wrap',
-            backgroundColor: 'var(--pf-t--global--background--color--primary--default)',
+            backgroundColor: 'var(--pf-v5-global--BackgroundColor--100)',
             cursor: 'text',
             width: '100%'
           }}
@@ -480,16 +480,16 @@ export const NodesPage: React.FC = () => {
                 setIsAutocompleteOpen(false);
               }
             }}
-            placeholder="Search by name or query (e.g., status:Ready cluster:production-east)"
+            placeholder="Search by name..."
             style={{
               border: 'none',
               outline: 'none',
               flex: 1,
               minWidth: '200px',
-              fontSize: 'var(--pf-t--global--font--size--body--default)',
+              fontSize: '14px',
               backgroundColor: 'transparent',
-              fontFamily: 'var(--pf-t--global--font--family--body)',
-              color: 'var(--pf-t--global--text--color--regular)'
+              fontFamily: 'RedHatText, Overpass, overpass, helvetica, arial, sans-serif',
+              color: 'var(--pf-v5-global--Color--100)'
             }}
           />
           {(queryChips.length > 0 || queryText) && (
@@ -514,12 +514,12 @@ export const NodesPage: React.FC = () => {
               top: '100%',
               left: 0,
               right: 0,
-              marginTop: 'var(--pf-t--global--spacer--sm)',
+              marginTop: '4px',
               zIndex: 1000,
-              backgroundColor: 'var(--pf-t--global--background--color--primary--default)',
-              border: '1px solid var(--pf-t--global--border--color--default)',
-              borderRadius: 'var(--pf-t--global--border--radius--medium)',
-              boxShadow: 'var(--pf-t--global--box-shadow--lg)',
+              backgroundColor: 'var(--pf-v5-global--BackgroundColor--100)',
+              border: '1px solid var(--pf-v5-global--BorderColor--100)',
+              borderRadius: '3px',
+              boxShadow: '0 0.25rem 0.5rem 0rem rgba(3, 3, 3, 0.12), 0 0 0.25rem 0 rgba(3, 3, 3, 0.06)',
               maxHeight: '400px',
               overflowY: 'auto'
             }}
@@ -700,7 +700,11 @@ export const NodesPage: React.FC = () => {
         </div>
         
         {/* Table */}
-        <div style={{ padding: '0 var(--pf-v5-global--spacer--lg)' }}>
+        <div style={{ 
+          padding: '0 var(--pf-v5-global--spacer--lg)', 
+          backgroundColor: 'var(--pf-v5-global--BackgroundColor--100)',
+          borderRadius: '3px'
+        }}>
         <Toolbar>
         <ToolbarContent>
           <ToolbarItem variant="pagination" align={{ default: 'alignRight' }}>
@@ -738,11 +742,11 @@ export const NodesPage: React.FC = () => {
             <Tr key={index}>
               <Td dataLabel="Name">{node.name}</Td>
               <Td dataLabel="Status">
-                <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }} style={{ gap: '0.25rem' }}>
                   <FlexItem>
-                    <CheckCircleIcon style={{ color: 'var(--pf-t--global--icon--color--status--success--default)' }} />
+                    <CheckCircleIcon style={{ color: 'var(--pf-v5-global--success-color--100)', fontSize: '14px' }} />
                   </FlexItem>
-                  <FlexItem>{node.status}</FlexItem>
+                  <FlexItem style={{ fontSize: '14px' }}>{node.status}</FlexItem>
                 </Flex>
               </Td>
               <Td dataLabel="Roles">{node.roles}</Td>

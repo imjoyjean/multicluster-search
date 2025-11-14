@@ -251,9 +251,9 @@ export const VirtualMachinesPage: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light} padding={{ default: 'noPadding' }}>
+      <PageSection variant={PageSectionVariants.default} padding={{ default: 'noPadding' }}>
         <div style={{ padding: 'var(--pf-v5-global--spacer--md) var(--pf-v5-global--spacer--lg) 0' }}>
-          <Title headingLevel="h1" size="2xl" style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>Virtual machines</Title>
+          <Title headingLevel="h1" size="xl" style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>Virtual machines</Title>
         </div>
       
         <div style={{ padding: '0 var(--pf-v5-global--spacer--lg) var(--pf-v5-global--spacer--md)' }}>
@@ -266,15 +266,15 @@ export const VirtualMachinesPage: React.FC = () => {
             ref={searchContainerRef}
             onClick={() => queryInputRef.current?.focus()}
             style={{
-              border: '1px solid var(--pf-t--global--border--color--default)',
-              borderRadius: 'var(--pf-t--global--border--radius--small)',
-              padding: '8px 12px',
-              minHeight: '40px',
+              border: '1px solid var(--pf-v5-global--BorderColor--100)',
+              borderRadius: '3px',
+              padding: '6px 12px',
+              minHeight: '36px',
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
               flexWrap: 'wrap',
-              backgroundColor: 'var(--pf-t--global--background--color--primary--default)',
+              backgroundColor: 'var(--pf-v5-global--BackgroundColor--100)',
               cursor: 'text',
               width: '100%'
             }}
@@ -287,17 +287,17 @@ export const VirtualMachinesPage: React.FC = () => {
                 setQueryText(e.target.value);
                 setIsAutocompleteOpen(e.target.value.length > 0);
               }}
-              onFocus={() => queryText.length > 0 && setIsAutocompleteOpen(true)}
-              placeholder="Search by name or query (e.g., status:Running cluster:hub)"
+              onFocus={() => queryText.length > 0 && setIsQueryAutocompleteOpen(true)}
+              placeholder="Search by name..."
               style={{
                 border: 'none',
                 outline: 'none',
                 flex: 1,
                 minWidth: '150px',
-                fontSize: 'var(--pf-t--global--font--size--body--default)',
+                fontSize: '14px',
                 backgroundColor: 'transparent',
-                fontFamily: 'var(--pf-t--global--font--family--body)',
-                color: 'var(--pf-t--global--text--color--regular)'
+                fontFamily: 'RedHatText, Overpass, overpass, helvetica, arial, sans-serif',
+                color: 'var(--pf-v5-global--Color--100)'
               }}
             />
             {queryText && (
@@ -322,12 +322,12 @@ export const VirtualMachinesPage: React.FC = () => {
                 top: '100%',
                 left: 0,
                 right: 0,
-                marginTop: 'var(--pf-t--global--spacer--sm)',
+                marginTop: '4px',
                 zIndex: 1000,
-                backgroundColor: 'var(--pf-t--global--background--color--primary--default)',
-                border: '1px solid var(--pf-t--global--border--color--default)',
-                borderRadius: 'var(--pf-t--global--border--radius--medium)',
-                boxShadow: 'var(--pf-t--global--box-shadow--lg)',
+                backgroundColor: 'var(--pf-v5-global--BackgroundColor--100)',
+                border: '1px solid var(--pf-v5-global--BorderColor--100)',
+                borderRadius: '3px',
+                boxShadow: '0 0.25rem 0.5rem 0rem rgba(3, 3, 3, 0.12), 0 0 0.25rem 0 rgba(3, 3, 3, 0.06)',
                 maxHeight: '400px',
                 overflowY: 'auto'
               }}
@@ -493,7 +493,11 @@ export const VirtualMachinesPage: React.FC = () => {
         </div>
         
         {/* Table */}
-        <div style={{ padding: '0 var(--pf-v5-global--spacer--lg)' }}>
+        <div style={{ 
+          padding: '0 var(--pf-v5-global--spacer--lg)', 
+          backgroundColor: 'var(--pf-v5-global--BackgroundColor--100)',
+          borderRadius: '3px'
+        }}>
         <Toolbar>
         <ToolbarContent>
           <ToolbarItem variant="pagination" align={{ default: 'alignRight' }}>
@@ -528,10 +532,8 @@ export const VirtualMachinesPage: React.FC = () => {
           {paginatedVMs.map((vm) => (
             <Tr key={vm.id}>
               <Td dataLabel="Name">{vm.name}</Td>
-              <Td dataLabel="Status">
-                <Label color={vm.status === 'Running' ? 'green' : vm.status === 'Error' ? 'red' : 'grey'}>
-                  {vm.status}
-                </Label>
+              <Td dataLabel="Status" style={{ fontSize: '14px' }}>
+                {vm.status}
               </Td>
               <Td dataLabel="Operating System">{vm.os}</Td>
               <Td dataLabel="Cluster">{vm.cluster}</Td>
