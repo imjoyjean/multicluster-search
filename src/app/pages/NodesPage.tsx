@@ -434,7 +434,7 @@ export const NodesPage: React.FC = () => {
           ref={searchContainerRef}
           onClick={handleSearchContainerClick}
           style={{
-            border: '1px solid var(--pf-v5-global--BorderColor--100)',
+            border: '1px solid var(--pf-v5-global--BorderColor--200)',
             borderRadius: '3px',
             padding: '6px 12px',
             minHeight: '36px',
@@ -444,7 +444,8 @@ export const NodesPage: React.FC = () => {
             flexWrap: 'wrap',
             backgroundColor: 'var(--pf-v5-global--BackgroundColor--100)',
             cursor: 'text',
-            width: '100%'
+            width: '100%',
+            boxShadow: 'inset 0 1px 1px rgba(3, 3, 3, 0.05)'
           }}
         >
           {queryChips.map((chip) => (
@@ -517,9 +518,9 @@ export const NodesPage: React.FC = () => {
               marginTop: '4px',
               zIndex: 1000,
               backgroundColor: 'var(--pf-v5-global--BackgroundColor--100)',
-              border: '1px solid var(--pf-v5-global--BorderColor--100)',
+              border: '1px solid var(--pf-v5-global--BorderColor--200)',
               borderRadius: '3px',
-              boxShadow: '0 0.25rem 0.5rem 0rem rgba(3, 3, 3, 0.12), 0 0 0.25rem 0 rgba(3, 3, 3, 0.06)',
+              boxShadow: '0 0.25rem 0.5rem 0rem rgba(3, 3, 3, 0.2), 0 0 0.25rem 0 rgba(3, 3, 3, 0.12)',
               maxHeight: '400px',
               overflowY: 'auto'
             }}
@@ -700,11 +701,6 @@ export const NodesPage: React.FC = () => {
         </div>
         
         {/* Table */}
-        <div style={{ 
-          padding: '0 var(--pf-v5-global--spacer--lg)', 
-          backgroundColor: 'var(--pf-v5-global--BackgroundColor--100)',
-          borderRadius: '3px'
-        }}>
         <Toolbar>
         <ToolbarContent>
           <ToolbarItem variant="pagination" align={{ default: 'alignRight' }}>
@@ -721,6 +717,12 @@ export const NodesPage: React.FC = () => {
         </ToolbarContent>
       </Toolbar>
 
+      <div style={{ 
+        backgroundColor: 'var(--pf-v5-global--BackgroundColor--100)',
+        borderRadius: '3px',
+        padding: '0 var(--pf-v5-global--spacer--lg)',
+        marginBottom: 'var(--pf-v5-global--spacer--md)'
+      }}>
       <Table variant="compact">
         <Thead>
           <Tr>
@@ -762,6 +764,7 @@ export const NodesPage: React.FC = () => {
           ))}
         </Tbody>
       </Table>
+      </div>
 
       <Toolbar>
         <ToolbarContent>
@@ -777,7 +780,6 @@ export const NodesPage: React.FC = () => {
           </ToolbarItem>
         </ToolbarContent>
         </Toolbar>
-        </div>
       </PageSection>
     </>
   );
