@@ -260,6 +260,17 @@ export const NodesPage: React.FC = () => {
     const key = `${type}-${value.replace(/\s+/g, '-')}`;
     if (!queryChips.find(chip => chip.key === key)) {
       setQueryChips([...queryChips, { key, label, value, type }]);
+      
+      // Sync with filter dropdowns
+      if (type === 'cluster' && !clusterFilter.includes(value)) {
+        setClusterFilter([...clusterFilter, value]);
+      } else if (type === 'namespace' && !namespaceFilter.includes(value)) {
+        setNamespaceFilter([...namespaceFilter, value]);
+      } else if (type === 'status' && !statusFilter.includes(value)) {
+        setStatusFilter([...statusFilter, value]);
+      } else if (type === 'role' && !roleFilter.includes(value)) {
+        setRoleFilter([...roleFilter, value]);
+      }
     }
   };
 

@@ -121,6 +121,12 @@ export const VirtualMachinesPage: React.FC = () => {
     const newChip = { key: `${type}-${value.replace(/\s+/g, '-')}`, label, value, type };
     setQueryChips(prev => {
       if (!prev.some(chip => chip.key === newChip.key)) {
+        // Sync with filter dropdowns
+        if (type === 'status' && statusFilter !== value) {
+          setStatusFilter(value);
+        } else if (type === 'os' && osFilter !== value) {
+          setOSFilter(value);
+        }
         return [...prev, newChip];
       }
       return prev;
