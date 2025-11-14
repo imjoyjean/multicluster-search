@@ -330,7 +330,11 @@ export const VirtualMachinesPage: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.default} padding={{ default: 'noPadding' }}>
+      <PageSection 
+        variant={PageSectionVariants.default} 
+        padding={{ default: 'noPadding' }}
+        style={{ backgroundColor: '#ffffff', minHeight: '100vh' }}
+      >
         <div style={{ 
           backgroundColor: '#ffffff',
           padding: 'var(--pf-v5-global--spacer--md) var(--pf-v5-global--spacer--lg)'
@@ -638,7 +642,7 @@ export const VirtualMachinesPage: React.FC = () => {
         </div>
         
         {/* Table */}
-        <Toolbar style={{ marginTop: 'var(--pf-v5-global--spacer--lg)' }}>
+        <Toolbar style={{ marginTop: 'var(--pf-v5-global--spacer--md)' }}>
         <ToolbarContent>
           <ToolbarItem variant="pagination" align={{ default: 'alignRight' }}>
             <Pagination
@@ -656,8 +660,7 @@ export const VirtualMachinesPage: React.FC = () => {
 
       {filteredVMs.length === 0 ? (
         <div style={{ 
-          backgroundColor: 'var(--pf-v5-global--BackgroundColor--100)',
-          borderRadius: '3px',
+          backgroundColor: '#ffffff',
           padding: 'var(--pf-v5-global--spacer--2xl) var(--pf-v5-global--spacer--lg)',
           marginBottom: 'var(--pf-v5-global--spacer--md)'
         }}>
@@ -681,8 +684,7 @@ export const VirtualMachinesPage: React.FC = () => {
         </div>
       ) : (
         <div style={{ 
-          backgroundColor: 'var(--pf-v5-global--BackgroundColor--100)',
-          borderRadius: '3px',
+          backgroundColor: '#ffffff',
           padding: '0 var(--pf-v5-global--spacer--lg)',
           marginBottom: 'var(--pf-v5-global--spacer--md)'
         }}>
