@@ -69,7 +69,7 @@ const generateMockNodes = (): Node[] => {
   const clusters = ['production-east', 'production-west', 'staging-east', 'staging-west', 'dev-central', 'qa-north'];
   const namespaces = ['default', 'kube-system', 'monitoring', 'logging', 'app-prod', 'app-staging', 'database', 'ingress'];
   const statuses = ['Ready', 'Ready', 'Ready', 'Ready', 'Ready', 'NotReady', 'SchedulingDisabled', 'Unknown'];
-  const rolesList = ['worker', 'worker', 'worker', 'worker', 'control-plane,master', 'worker,ingress'];
+  const rolesList = ['worker', 'worker', 'worker', 'control-plane,master', 'worker,ingress', 'worker', 'worker,monitoring', 'worker'];
   const instanceTypes = ['m5.xlarge', 'm5.2xlarge', 'm5.4xlarge', 't3.large', 't3.xlarge', 'c5.2xlarge'];
   const days = ['1 day ago', '2 days ago', '3 days ago', '5 days ago', '1 week ago', '2 weeks ago', '1 month ago'];
   
