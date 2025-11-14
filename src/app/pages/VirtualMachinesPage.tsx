@@ -59,6 +59,7 @@ export const VirtualMachinesPage: React.FC = () => {
   const [page, setPage] = React.useState(parseInt(searchParams.get('page') || '1'));
   const [perPage, setPerPage] = React.useState(parseInt(searchParams.get('perPage') || '10'));
   const [queryText, setQueryText] = React.useState(searchParams.get('query') || '');
+  const [queryChips, setQueryChips] = React.useState<Array<{ key: string; label: string; value: string; type: string }>>([]);
   const [isAutocompleteOpen, setIsAutocompleteOpen] = React.useState(false);
   const queryInputRef = React.useRef<HTMLInputElement>(null);
   const searchContainerRef = React.useRef<HTMLDivElement>(null);
@@ -106,6 +107,36 @@ export const VirtualMachinesPage: React.FC = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Query chip management functions
+  const addQueryChip = (type: string, label: string, value: string) => {
+    const newChip = { key: `${type}-${value.replace(/\s+/g, '-')}`, label, value, type };
+    setQueryChips(prev => {
+      if (!prev.some(chip => chip.key === newChip.key)) {
+        return [...prev, newChip];
+      }
+      return prev;
+    });
+  };
+
+  const removeQueryChip = (key: string) => {
+    const chipToRemove = queryChips.find(chip => chip.key === key);
+    if (chipToRemove) {
+      if (chipToRemove.type === 'status') {
+        setStatusFilter('All');
+      } else if (chipToRemove.type === 'os') {
+        setOSFilter('All');
+      }
+    }
+    setQueryChips(queryChips.filter(chip => chip.key !== key));
+  };
+
+  const clearAllChips = () => {
+    setQueryChips([]);
+    setQueryText('');
+    setStatusFilter('All');
+    setOSFilter('All');
+  };
 
   // Get unique values for filters
   const availableStatuses = React.useMemo(() => ['All', ...Array.from(new Set(mockVMs.map(vm => vm.status)))], []);
