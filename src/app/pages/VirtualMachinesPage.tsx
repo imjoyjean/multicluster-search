@@ -287,7 +287,7 @@ export const VirtualMachinesPage: React.FC = () => {
                 setQueryText(e.target.value);
                 setIsAutocompleteOpen(e.target.value.length > 0);
               }}
-              onFocus={() => queryText.length > 0 && setIsQueryAutocompleteOpen(true)}
+              onFocus={() => queryText.length > 0 && setIsAutocompleteOpen(true)}
               placeholder="Search by name..."
               style={{
                 border: 'none',
