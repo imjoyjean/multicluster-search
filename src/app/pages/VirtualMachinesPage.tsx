@@ -251,11 +251,12 @@ export const VirtualMachinesPage: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <Title headingLevel="h1" size="2xl">Virtual machines</Title>
-      </PageSection>
       <PageSection variant={PageSectionVariants.light} padding={{ default: 'noPadding' }}>
-        <div style={{ padding: 'var(--pf-v5-global--spacer--md) var(--pf-v5-global--spacer--lg)' }}>
+        <div style={{ padding: 'var(--pf-v5-global--spacer--md) var(--pf-v5-global--spacer--lg) 0' }}>
+          <Title headingLevel="h1" size="2xl" style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>Virtual machines</Title>
+        </div>
+      
+        <div style={{ padding: '0 var(--pf-v5-global--spacer--lg) var(--pf-v5-global--spacer--md)' }}>
       
         {/* Search Bar and Action Buttons Row */}
         <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }} style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>
@@ -490,10 +491,9 @@ export const VirtualMachinesPage: React.FC = () => {
         </FlexItem>
         </Flex>
         </div>
-      </PageSection>
-      
-      <PageSection variant={PageSectionVariants.light} padding={{ default: 'noPadding' }}>
+        
         {/* Table */}
+        <div style={{ padding: '0 var(--pf-v5-global--spacer--lg)' }}>
         <Toolbar>
         <ToolbarContent>
           <ToolbarItem variant="pagination" align={{ default: 'alignRight' }}>
@@ -559,6 +559,7 @@ export const VirtualMachinesPage: React.FC = () => {
           </ToolbarItem>
         </ToolbarContent>
         </Toolbar>
+        </div>
       </PageSection>
     </>
   );

@@ -416,11 +416,12 @@ export const NodesPage: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <Title headingLevel="h1" size="2xl">Nodes</Title>
-      </PageSection>
       <PageSection variant={PageSectionVariants.light} padding={{ default: 'noPadding' }}>
-        <div style={{ padding: 'var(--pf-v5-global--spacer--md) var(--pf-v5-global--spacer--lg)' }}>
+        <div style={{ padding: 'var(--pf-v5-global--spacer--md) var(--pf-v5-global--spacer--lg) 0' }}>
+          <Title headingLevel="h1" size="2xl" style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>Nodes</Title>
+        </div>
+      
+        <div style={{ padding: '0 var(--pf-v5-global--spacer--lg) var(--pf-v5-global--spacer--md)' }}>
       
         {/* Search Bar */}
         <div style={{ 
@@ -697,10 +698,9 @@ export const NodesPage: React.FC = () => {
         </FlexItem>
         </Flex>
         </div>
-      </PageSection>
-      
-      <PageSection variant={PageSectionVariants.light} padding={{ default: 'noPadding' }}>
+        
         {/* Table */}
+        <div style={{ padding: '0 var(--pf-v5-global--spacer--lg)' }}>
         <Toolbar>
         <ToolbarContent>
           <ToolbarItem variant="pagination" align={{ default: 'alignRight' }}>
@@ -773,6 +773,7 @@ export const NodesPage: React.FC = () => {
           </ToolbarItem>
         </ToolbarContent>
         </Toolbar>
+        </div>
       </PageSection>
     </>
   );
