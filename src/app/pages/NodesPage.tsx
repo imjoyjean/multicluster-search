@@ -545,19 +545,14 @@ export const NodesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsClusterFilterOpen(!isClusterFilterOpen)}
                 isExpanded={isClusterFilterOpen}
-                variant="plain"
+                variant="typeahead"
                 aria-label="Cluster filter"
                 style={{
-                  fontSize: '16px',
-                  fontWeight: 400,
-                  borderBottom: isClusterFilterOpen ? '2px solid var(--pf-v5-global--primary-color--100)' : '2px solid transparent',
-                  borderRadius: 0,
-                  paddingBottom: '8px'
+                  backgroundColor: '#ffffff',
+                  minWidth: '160px'
                 }}
               >
-                Cluster {clusterFilter.length > 0 && (
-                  <Badge isRead>{clusterFilter.length} selected</Badge>
-                )}
+                Cluster
               </MenuToggle>
             )}
           >
@@ -588,19 +583,14 @@ export const NodesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsNamespaceFilterOpen(!isNamespaceFilterOpen)}
                 isExpanded={isNamespaceFilterOpen}
-                variant="plain"
+                variant="typeahead"
                 aria-label="Namespace filter"
                 style={{
-                  fontSize: '16px',
-                  fontWeight: 400,
-                  borderBottom: isNamespaceFilterOpen ? '2px solid var(--pf-v5-global--primary-color--100)' : '2px solid transparent',
-                  borderRadius: 0,
-                  paddingBottom: '8px'
+                  backgroundColor: '#ffffff',
+                  minWidth: '160px'
                 }}
               >
-                Namespace {namespaceFilter.length > 0 && (
-                  <Badge isRead>{namespaceFilter.length} selected</Badge>
-                )}
+                Namespace
               </MenuToggle>
             )}
           >
@@ -631,19 +621,14 @@ export const NodesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsStatusFilterOpen(!isStatusFilterOpen)}
                 isExpanded={isStatusFilterOpen}
-                variant="plain"
+                variant="typeahead"
                 aria-label="Status filter"
                 style={{
-                  fontSize: '16px',
-                  fontWeight: 400,
-                  borderBottom: isStatusFilterOpen ? '2px solid var(--pf-v5-global--primary-color--100)' : '2px solid transparent',
-                  borderRadius: 0,
-                  paddingBottom: '8px'
+                  backgroundColor: '#ffffff',
+                  minWidth: '160px'
                 }}
               >
-                Status {statusFilter.length > 0 && (
-                  <Badge isRead>{statusFilter.length} selected</Badge>
-                )}
+                Status
               </MenuToggle>
             )}
           >
@@ -674,19 +659,14 @@ export const NodesPage: React.FC = () => {
                 ref={toggleRef} 
                 onClick={() => setIsRoleFilterOpen(!isRoleFilterOpen)}
                 isExpanded={isRoleFilterOpen}
-                variant="plain"
+                variant="typeahead"
                 aria-label="Role filter"
                 style={{
-                  fontSize: '16px',
-                  fontWeight: 400,
-                  borderBottom: isRoleFilterOpen ? '2px solid var(--pf-v5-global--primary-color--100)' : '2px solid transparent',
-                  borderRadius: 0,
-                  paddingBottom: '8px'
+                  backgroundColor: '#ffffff',
+                  minWidth: '160px'
                 }}
               >
-                Role {roleFilter.length > 0 && (
-                  <Badge isRead>{roleFilter.length} selected</Badge>
-                )}
+                Role
               </MenuToggle>
             )}
           >
