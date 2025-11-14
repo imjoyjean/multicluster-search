@@ -26,6 +26,7 @@ import {
   Badge,
 } from '@patternfly/react-core';
 import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
+import { FilterIcon } from '@patternfly/react-icons';
 import { useSearchParams } from 'react-router-dom';
 
 interface VM {
@@ -407,10 +408,10 @@ export const VirtualMachinesPage: React.FC = () => {
                 isExpanded={isStatusFilterOpen}
                 variant="default"
                 aria-label="Status filter"
+                icon={<FilterIcon />}
                 style={{
                   backgroundColor: '#ffffff',
-                  minWidth: '200px',
-                  padding: '6px 12px'
+                  minWidth: '200px'
                 }}
               >
                 Status: {statusFilter}
@@ -444,10 +445,10 @@ export const VirtualMachinesPage: React.FC = () => {
                 isExpanded={isOSFilterOpen}
                 variant="default"
                 aria-label="Operating system filter"
+                icon={<FilterIcon />}
                 style={{
                   backgroundColor: '#ffffff',
-                  minWidth: '240px',
-                  padding: '6px 12px'
+                  minWidth: '240px'
                 }}
               >
                 Operating system: {osFilter}

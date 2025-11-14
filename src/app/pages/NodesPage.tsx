@@ -26,7 +26,7 @@ import {
   Badge,
 } from '@patternfly/react-core';
 import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
-import { CheckCircleIcon } from '@patternfly/react-icons';
+import { CheckCircleIcon, FilterIcon } from '@patternfly/react-icons';
 import { useSearchParams } from 'react-router-dom';
 
 interface Node {
@@ -547,10 +547,10 @@ export const NodesPage: React.FC = () => {
                 isExpanded={isClusterFilterOpen}
                 variant="default"
                 aria-label="Cluster filter"
+                icon={<FilterIcon />}
                 style={{
                   backgroundColor: '#ffffff',
-                  minWidth: '160px',
-                  padding: '6px 12px'
+                  minWidth: '160px'
                 }}
               >
                 Cluster
@@ -586,10 +586,10 @@ export const NodesPage: React.FC = () => {
                 isExpanded={isNamespaceFilterOpen}
                 variant="default"
                 aria-label="Namespace filter"
+                icon={<FilterIcon />}
                 style={{
                   backgroundColor: '#ffffff',
-                  minWidth: '160px',
-                  padding: '6px 12px'
+                  minWidth: '160px'
                 }}
               >
                 Namespace
@@ -625,10 +625,10 @@ export const NodesPage: React.FC = () => {
                 isExpanded={isStatusFilterOpen}
                 variant="default"
                 aria-label="Status filter"
+                icon={<FilterIcon />}
                 style={{
                   backgroundColor: '#ffffff',
-                  minWidth: '160px',
-                  padding: '6px 12px'
+                  minWidth: '160px'
                 }}
               >
                 Status
@@ -664,10 +664,10 @@ export const NodesPage: React.FC = () => {
                 isExpanded={isRoleFilterOpen}
                 variant="default"
                 aria-label="Role filter"
+                icon={<FilterIcon />}
                 style={{
                   backgroundColor: '#ffffff',
-                  minWidth: '160px',
-                  padding: '6px 12px'
+                  minWidth: '160px'
                 }}
               >
                 Role
