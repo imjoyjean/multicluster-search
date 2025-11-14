@@ -288,6 +288,22 @@ export const VirtualMachinesPage: React.FC = () => {
           conditions.push(vm.cluster.toLowerCase() === chip.value.toLowerCase());
         } else if (chip.type === 'namespace') {
           conditions.push(vm.namespace.toLowerCase() === chip.value.toLowerCase());
+        } else if (chip.type === 'name') {
+          conditions.push(vm.name.toLowerCase() === chip.value.toLowerCase());
+        } else if (chip.type === 'search') {
+          // General search - check if it matches any field
+          const searchLower = chip.value.toLowerCase();
+          const matchesAnyField = 
+            vm.name.toLowerCase().includes(searchLower) ||
+            vm.status.toLowerCase().includes(searchLower) ||
+            vm.os.toLowerCase().includes(searchLower) ||
+            vm.cluster.toLowerCase().includes(searchLower) ||
+            vm.namespace.toLowerCase().includes(searchLower) ||
+            vm.cpu.toLowerCase().includes(searchLower) ||
+            vm.memory.toLowerCase().includes(searchLower) ||
+            vm.disk.toLowerCase().includes(searchLower) ||
+            vm.ip.toLowerCase().includes(searchLower);
+          conditions.push(matchesAnyField);
         }
       });
       

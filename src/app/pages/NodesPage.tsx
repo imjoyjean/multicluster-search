@@ -459,6 +459,24 @@ export const NodesPage: React.FC = () => {
           conditions.push(node.status.toLowerCase() === chip.value.toLowerCase());
         } else if (chip.type === 'role') {
           conditions.push(node.roles.toLowerCase().includes(chip.value.toLowerCase()));
+        } else if (chip.type === 'name') {
+          conditions.push(node.name.toLowerCase() === chip.value.toLowerCase());
+        } else if (chip.type === 'search') {
+          // General search - check if it matches any field
+          const searchLower = chip.value.toLowerCase();
+          const matchesAnyField = 
+            node.name.toLowerCase().includes(searchLower) ||
+            node.cluster.toLowerCase().includes(searchLower) ||
+            node.namespace.toLowerCase().includes(searchLower) ||
+            node.status.toLowerCase().includes(searchLower) ||
+            node.roles.toLowerCase().includes(searchLower) ||
+            node.pods.toLowerCase().includes(searchLower) ||
+            node.memory.toLowerCase().includes(searchLower) ||
+            node.cpu.toLowerCase().includes(searchLower) ||
+            node.filesystem.toLowerCase().includes(searchLower) ||
+            node.instanceType.toLowerCase().includes(searchLower) ||
+            node.created.toLowerCase().includes(searchLower);
+          conditions.push(matchesAnyField);
         }
       });
       
