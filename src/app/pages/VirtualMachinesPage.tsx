@@ -480,20 +480,30 @@ export const VirtualMachinesPage: React.FC = () => {
                           <MenuItem 
                             key={`${sectionIndex}-${itemIndex}`}
                             onClick={() => {
-                              // Check if it's a label:value pattern
-                              const labelValueMatch = item.text.match(/^(name|status|os|cluster|namespace|cpu|memory|disk|ip):(.+)$/i);
+                              // Check if it's just a field keyword (ends with : and nothing after)
+                              const fieldKeywordMatch = item.text.match(/^(name|status|os|cluster|namespace|cpu|memory|disk|ip):$/i);
                               
-                              if (labelValueMatch) {
-                                const [, label, value] = labelValueMatch;
-                                addQueryChip(label.toLowerCase(), item.text, value);
-                                setQueryText('');
+                              if (fieldKeywordMatch) {
+                                // Just insert the field keyword into the search box and keep autocomplete open
+                                setQueryText(item.text);
+                                setIsAutocompleteOpen(true);
+                                setTimeout(() => queryInputRef.current?.focus(), 0);
                               } else {
-                                // Add as a general search chip
-                                addQueryChip('search', item.text, item.text);
-                                setQueryText('');
+                                // Check if it's a complete label:value pattern
+                                const labelValueMatch = item.text.match(/^(name|status|os|cluster|namespace|cpu|memory|disk|ip):(.+)$/i);
+                                
+                                if (labelValueMatch) {
+                                  const [, label, value] = labelValueMatch;
+                                  addQueryChip(label.toLowerCase(), item.text, value);
+                                  setQueryText('');
+                                } else {
+                                  // Add as a general search chip
+                                  addQueryChip('search', item.text, item.text);
+                                  setQueryText('');
+                                }
+                                setIsAutocompleteOpen(false);
+                                setTimeout(() => queryInputRef.current?.focus(), 0);
                               }
-                              setIsAutocompleteOpen(false);
-                              setTimeout(() => queryInputRef.current?.focus(), 0);
                             }}
                           >
                             {item.displayText}
