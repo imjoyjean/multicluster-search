@@ -512,7 +512,7 @@ export const VirtualMachinesPage: React.FC = () => {
   // Get sorting parameters for table columns
   const getSortParams = (columnIndex: number): ThProps['sort'] => ({
     sortBy: {
-      index: activeSortIndex || undefined,
+      index: activeSortIndex !== null ? activeSortIndex : undefined,
       direction: activeSortDirection,
     },
     onSort: (_event, index, direction) => {
