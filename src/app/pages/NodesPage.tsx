@@ -24,9 +24,15 @@ import {
   Divider,
   SearchInput,
   Badge,
+  EmptyState,
+  EmptyStateHeader,
+  EmptyStateIcon,
+  EmptyStateBody,
+  EmptyStateActions,
+  EmptyStateFooter,
 } from '@patternfly/react-core';
 import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
-import { CheckCircleIcon, FilterIcon } from '@patternfly/react-icons';
+import { CheckCircleIcon, FilterIcon, SearchIcon } from '@patternfly/react-icons';
 import { useSearchParams } from 'react-router-dom';
 
 interface Node {
@@ -483,13 +489,23 @@ export const NodesPage: React.FC = () => {
               display: 'flex',
               flexWrap: 'wrap',
               alignItems: 'center',
-              gap: '8px',
-              padding: '8px 12px',
+              gap: '6px',
+              padding: '6px 12px',
               backgroundColor: '#ffffff',
-              border: '1px solid #6a6e73',
-              borderRadius: '3px',
+              border: '1px solid var(--pf-v5-global--BorderColor--100)',
+              borderRadius: 'var(--pf-v5-global--BorderRadius--sm)',
               minHeight: '36px',
-              cursor: 'text'
+              cursor: 'text',
+              boxShadow: 'inset 0 1px 1px rgba(3, 3, 3, 0.12)',
+              transition: 'border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out'
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = 'var(--pf-v5-global--primary-color--100)';
+              e.currentTarget.style.boxShadow = 'inset 0 1px 1px rgba(3, 3, 3, 0.12), 0 0 0 0.125rem rgba(6, 114, 210, 0.25)';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = 'var(--pf-v5-global--BorderColor--100)';
+              e.currentTarget.style.boxShadow = 'inset 0 1px 1px rgba(3, 3, 3, 0.12)';
             }}
           >
             {/* Query Chips Inside Search Bar */}
@@ -613,10 +629,10 @@ export const NodesPage: React.FC = () => {
                 isExpanded={isClusterFilterOpen}
                 icon={<FilterIcon />}
                 style={{
-                  width: '160px'
+                  width: '180px'
                 }}
               >
-                Cluster
+                Cluster {clusterFilter.length > 0 && <Badge isRead>{clusterFilter.length}</Badge>}
               </MenuToggle>
             )}
           >
@@ -649,10 +665,10 @@ export const NodesPage: React.FC = () => {
                 isExpanded={isNamespaceFilterOpen}
                 icon={<FilterIcon />}
                 style={{
-                  width: '160px'
+                  width: '180px'
                 }}
               >
-                Namespace
+                Namespace {namespaceFilter.length > 0 && <Badge isRead>{namespaceFilter.length}</Badge>}
               </MenuToggle>
             )}
           >
@@ -685,10 +701,10 @@ export const NodesPage: React.FC = () => {
                 isExpanded={isStatusFilterOpen}
                 icon={<FilterIcon />}
                 style={{
-                  width: '160px'
+                  width: '180px'
                 }}
               >
-                Status
+                Status {statusFilter.length > 0 && <Badge isRead>{statusFilter.length}</Badge>}
               </MenuToggle>
             )}
           >
@@ -721,10 +737,10 @@ export const NodesPage: React.FC = () => {
                 isExpanded={isRoleFilterOpen}
                 icon={<FilterIcon />}
                 style={{
-                  width: '160px'
+                  width: '180px'
                 }}
               >
-                Role
+                Role {roleFilter.length > 0 && <Badge isRead>{roleFilter.length}</Badge>}
               </MenuToggle>
             )}
           >
@@ -765,54 +781,81 @@ export const NodesPage: React.FC = () => {
         </ToolbarContent>
       </Toolbar>
 
-      <div style={{ 
-        backgroundColor: 'var(--pf-v5-global--BackgroundColor--100)',
-        borderRadius: '3px',
-        padding: '0 var(--pf-v5-global--spacer--lg)',
-        marginBottom: 'var(--pf-v5-global--spacer--md)'
-      }}>
-      <Table variant="compact">
-        <Thead>
-          <Tr>
-            <Th>Name</Th>
-            <Th>Status</Th>
-            <Th>Roles</Th>
-            <Th>Cluster</Th>
-            <Th>Namespace</Th>
-            <Th>Pods</Th>
-            <Th>Memory</Th>
-            <Th>CPU</Th>
-            <Th>Filesystem</Th>
-            <Th>Instance Type</Th>
-            <Th>Created</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {paginatedNodes.map((node, index) => (
-            <Tr key={index}>
-              <Td dataLabel="Name">{node.name}</Td>
-              <Td dataLabel="Status">
-                <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }} style={{ gap: '0.25rem' }}>
-                  <FlexItem>
-                    <CheckCircleIcon style={{ color: 'var(--pf-v5-global--success-color--100)', fontSize: '14px' }} />
-                  </FlexItem>
-                  <FlexItem style={{ fontSize: '14px' }}>{node.status}</FlexItem>
-                </Flex>
-              </Td>
-              <Td dataLabel="Roles">{node.roles}</Td>
-              <Td dataLabel="Cluster">{node.cluster}</Td>
-              <Td dataLabel="Namespace">{node.namespace}</Td>
-              <Td dataLabel="Pods">{node.pods}</Td>
-              <Td dataLabel="Memory">{node.memory}</Td>
-              <Td dataLabel="CPU">{node.cpu}</Td>
-              <Td dataLabel="Filesystem">{node.filesystem}</Td>
-              <Td dataLabel="Instance Type">{node.instanceType}</Td>
-              <Td dataLabel="Created">{node.created}</Td>
+      {filteredNodes.length === 0 ? (
+        <div style={{ 
+          backgroundColor: 'var(--pf-v5-global--BackgroundColor--100)',
+          borderRadius: '3px',
+          padding: 'var(--pf-v5-global--spacer--2xl) var(--pf-v5-global--spacer--lg)',
+          marginBottom: 'var(--pf-v5-global--spacer--md)'
+        }}>
+          <EmptyState>
+            <EmptyStateHeader 
+              titleText="No results found" 
+              icon={<EmptyStateIcon icon={SearchIcon} />} 
+              headingLevel="h2" 
+            />
+            <EmptyStateBody>
+              No nodes match your current filter criteria. Try adjusting your search or clearing some filters.
+            </EmptyStateBody>
+            <EmptyStateFooter>
+              <EmptyStateActions>
+                <Button variant="link" onClick={clearAllChips}>
+                  Clear all filters
+                </Button>
+              </EmptyStateActions>
+            </EmptyStateFooter>
+          </EmptyState>
+        </div>
+      ) : (
+        <div style={{ 
+          backgroundColor: 'var(--pf-v5-global--BackgroundColor--100)',
+          borderRadius: '3px',
+          padding: '0 var(--pf-v5-global--spacer--lg)',
+          marginBottom: 'var(--pf-v5-global--spacer--md)'
+        }}>
+        <Table variant="compact">
+          <Thead>
+            <Tr>
+              <Th>Name</Th>
+              <Th>Status</Th>
+              <Th>Roles</Th>
+              <Th>Cluster</Th>
+              <Th>Namespace</Th>
+              <Th>Pods</Th>
+              <Th>Memory</Th>
+              <Th>CPU</Th>
+              <Th>Filesystem</Th>
+              <Th>Instance Type</Th>
+              <Th>Created</Th>
             </Tr>
-          ))}
-        </Tbody>
-      </Table>
-      </div>
+          </Thead>
+          <Tbody>
+            {paginatedNodes.map((node, index) => (
+              <Tr key={index}>
+                <Td dataLabel="Name">{node.name}</Td>
+                <Td dataLabel="Status">
+                  <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }} style={{ gap: '0.25rem' }}>
+                    <FlexItem>
+                      <CheckCircleIcon style={{ color: 'var(--pf-v5-global--success-color--100)', fontSize: '14px' }} />
+                    </FlexItem>
+                    <FlexItem style={{ fontSize: '14px' }}>{node.status}</FlexItem>
+                  </Flex>
+                </Td>
+                <Td dataLabel="Roles">{node.roles}</Td>
+                <Td dataLabel="Cluster">{node.cluster}</Td>
+                <Td dataLabel="Namespace">{node.namespace}</Td>
+                <Td dataLabel="Pods">{node.pods}</Td>
+                <Td dataLabel="Memory">{node.memory}</Td>
+                <Td dataLabel="CPU">{node.cpu}</Td>
+                <Td dataLabel="Filesystem">{node.filesystem}</Td>
+                <Td dataLabel="Instance Type">{node.instanceType}</Td>
+                <Td dataLabel="Created">{node.created}</Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+        </div>
+      )}
 
       <Toolbar>
         <ToolbarContent>

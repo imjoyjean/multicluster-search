@@ -24,9 +24,15 @@ import {
   Divider,
   SearchInput,
   Badge,
+  EmptyState,
+  EmptyStateHeader,
+  EmptyStateIcon,
+  EmptyStateBody,
+  EmptyStateActions,
+  EmptyStateFooter,
 } from '@patternfly/react-core';
 import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
-import { FilterIcon } from '@patternfly/react-icons';
+import { FilterIcon, SearchIcon } from '@patternfly/react-icons';
 import { useSearchParams } from 'react-router-dom';
 
 interface VM {
@@ -343,13 +349,23 @@ export const VirtualMachinesPage: React.FC = () => {
               display: 'flex',
               flexWrap: 'wrap',
               alignItems: 'center',
-              gap: '8px',
-              padding: '8px 12px',
+              gap: '6px',
+              padding: '6px 12px',
               backgroundColor: '#ffffff',
-              border: '1px solid #6a6e73',
-              borderRadius: '3px',
+              border: '1px solid var(--pf-v5-global--BorderColor--100)',
+              borderRadius: 'var(--pf-v5-global--BorderRadius--sm)',
               minHeight: '36px',
-              cursor: 'text'
+              cursor: 'text',
+              boxShadow: 'inset 0 1px 1px rgba(3, 3, 3, 0.12)',
+              transition: 'border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out'
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = 'var(--pf-v5-global--primary-color--100)';
+              e.currentTarget.style.boxShadow = 'inset 0 1px 1px rgba(3, 3, 3, 0.12), 0 0 0 0.125rem rgba(6, 114, 210, 0.25)';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = 'var(--pf-v5-global--BorderColor--100)';
+              e.currentTarget.style.boxShadow = 'inset 0 1px 1px rgba(3, 3, 3, 0.12)';
             }}
           >
             {/* Query Chips Inside Search Bar */}
@@ -638,45 +654,72 @@ export const VirtualMachinesPage: React.FC = () => {
         </ToolbarContent>
       </Toolbar>
 
-      <div style={{ 
-        backgroundColor: 'var(--pf-v5-global--BackgroundColor--100)',
-        borderRadius: '3px',
-        padding: '0 var(--pf-v5-global--spacer--lg)',
-        marginBottom: 'var(--pf-v5-global--spacer--md)'
-      }}>
-      <Table variant="compact">
-        <Thead>
-          <Tr>
-            <Th>Name</Th>
-            <Th>Status</Th>
-            <Th>Operating System</Th>
-            <Th>Cluster</Th>
-            <Th>Namespace</Th>
-            <Th>CPU</Th>
-            <Th>Memory</Th>
-            <Th>Disk</Th>
-            <Th>IP Address</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {paginatedVMs.map((vm) => (
-            <Tr key={vm.id}>
-              <Td dataLabel="Name">{vm.name}</Td>
-              <Td dataLabel="Status" style={{ fontSize: '14px' }}>
-                {vm.status}
-              </Td>
-              <Td dataLabel="Operating System">{vm.os}</Td>
-              <Td dataLabel="Cluster">{vm.cluster}</Td>
-              <Td dataLabel="Namespace">{vm.namespace}</Td>
-              <Td dataLabel="CPU">{vm.cpu}</Td>
-              <Td dataLabel="Memory">{vm.memory}</Td>
-              <Td dataLabel="Disk">{vm.disk}</Td>
-              <Td dataLabel="IP Address">{vm.ip}</Td>
+      {filteredVMs.length === 0 ? (
+        <div style={{ 
+          backgroundColor: 'var(--pf-v5-global--BackgroundColor--100)',
+          borderRadius: '3px',
+          padding: 'var(--pf-v5-global--spacer--2xl) var(--pf-v5-global--spacer--lg)',
+          marginBottom: 'var(--pf-v5-global--spacer--md)'
+        }}>
+          <EmptyState>
+            <EmptyStateHeader 
+              titleText="No results found" 
+              icon={<EmptyStateIcon icon={SearchIcon} />} 
+              headingLevel="h2" 
+            />
+            <EmptyStateBody>
+              No virtual machines match your current filter criteria. Try adjusting your search or clearing some filters.
+            </EmptyStateBody>
+            <EmptyStateFooter>
+              <EmptyStateActions>
+                <Button variant="link" onClick={clearAllChips}>
+                  Clear all filters
+                </Button>
+              </EmptyStateActions>
+            </EmptyStateFooter>
+          </EmptyState>
+        </div>
+      ) : (
+        <div style={{ 
+          backgroundColor: 'var(--pf-v5-global--BackgroundColor--100)',
+          borderRadius: '3px',
+          padding: '0 var(--pf-v5-global--spacer--lg)',
+          marginBottom: 'var(--pf-v5-global--spacer--md)'
+        }}>
+        <Table variant="compact">
+          <Thead>
+            <Tr>
+              <Th>Name</Th>
+              <Th>Status</Th>
+              <Th>Operating System</Th>
+              <Th>Cluster</Th>
+              <Th>Namespace</Th>
+              <Th>CPU</Th>
+              <Th>Memory</Th>
+              <Th>Disk</Th>
+              <Th>IP Address</Th>
             </Tr>
-          ))}
-        </Tbody>
-      </Table>
-      </div>
+          </Thead>
+          <Tbody>
+            {paginatedVMs.map((vm) => (
+              <Tr key={vm.id}>
+                <Td dataLabel="Name">{vm.name}</Td>
+                <Td dataLabel="Status" style={{ fontSize: '14px' }}>
+                  {vm.status}
+                </Td>
+                <Td dataLabel="Operating System">{vm.os}</Td>
+                <Td dataLabel="Cluster">{vm.cluster}</Td>
+                <Td dataLabel="Namespace">{vm.namespace}</Td>
+                <Td dataLabel="CPU">{vm.cpu}</Td>
+                <Td dataLabel="Memory">{vm.memory}</Td>
+                <Td dataLabel="Disk">{vm.disk}</Td>
+                <Td dataLabel="IP Address">{vm.ip}</Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+        </div>
+      )}
 
       <Toolbar>
         <ToolbarContent>
