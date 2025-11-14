@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = (env, argv) => {
   const isProduction = process.env.BUILD_ENV === 'production';
@@ -44,6 +45,11 @@ module.exports = (env, argv) => {
     new HtmlWebpackPlugin({
       template: './src/index.html',
       base: ASSET_PATH,
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: 'public', to: '.', noErrorOnMissing: true }
+      ],
     }),
   ],
 };
