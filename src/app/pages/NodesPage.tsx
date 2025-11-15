@@ -147,6 +147,41 @@ const generateMockNodes = (): Node[] => {
     });
   }
   
+  // Add 5 specific nodes with dev-central cluster and worker role
+  for (let i = 0; i < 5; i++) {
+    const status = statuses[i % statuses.length];
+    const roles = 'worker';
+    const instanceType = instanceTypes[i % instanceTypes.length];
+    const created = days[i % days.length];
+    const namespace = namespaces[i % namespaces.length];
+    
+    const podsUsed = Math.floor(Math.random() * 100) + 10;
+    const memoryUsed = (Math.random() * 28 + 4).toFixed(1);
+    const memoryMax = instanceType.includes('2xlarge') ? 32 : instanceType.includes('4xlarge') ? 64 : 16;
+    const cpuUsed = (Math.random() * 6 + 0.5).toFixed(1);
+    const cpuMax = instanceType.includes('2xlarge') ? 8 : instanceType.includes('4xlarge') ? 16 : 4;
+    const filesystem = Math.floor(Math.random() * 70) + 20;
+    
+    const octet1 = Math.floor(Math.random() * 255);
+    const octet2 = Math.floor(Math.random() * 255);
+    const octet3 = Math.floor(Math.random() * 255);
+    const name = `ip-10-${octet1}-${octet2}-${octet3}.ec2.internal`;
+    
+    nodes.push({
+      name,
+      status,
+      roles,
+      pods: `${podsUsed}`,
+      memory: `${memoryUsed} GiB / ${memoryMax} GiB`,
+      cpu: `${cpuUsed} / ${cpuMax} cores`,
+      filesystem: `${filesystem}%`,
+      created,
+      instanceType,
+      cluster: 'dev-central',
+      namespace,
+    });
+  }
+  
   return nodes;
 };
 
