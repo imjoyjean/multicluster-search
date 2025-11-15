@@ -88,6 +88,11 @@ const generateMockNodes = (): Node[] => {
       continue;
     }
     
+    // Skip nodes with production-west cluster and t3.large instance type (we'll add exactly 5 later)
+    if (cluster === 'production-west' && instanceType === 't3.large') {
+      continue;
+    }
+    
     // Generate varied metrics
     const podsUsed = Math.floor(Math.random() * 100) + 10;
     const podsMax = 110;
@@ -183,6 +188,41 @@ const generateMockNodes = (): Node[] => {
       created,
       instanceType,
       cluster: 'dev-central',
+      namespace,
+    });
+  }
+  
+  // Add 5 specific nodes with production-west cluster and t3.large instance type
+  for (let i = 0; i < 5; i++) {
+    const status = statuses[i % statuses.length];
+    const roles = rolesList[i % rolesList.length];
+    const instanceType = 't3.large';
+    const created = days[i % days.length];
+    const namespace = namespaces[i % namespaces.length];
+    
+    const podsUsed = Math.floor(Math.random() * 100) + 10;
+    const memoryUsed = (Math.random() * 28 + 4).toFixed(1);
+    const memoryMax = 16;
+    const cpuUsed = (Math.random() * 6 + 0.5).toFixed(1);
+    const cpuMax = 4;
+    const filesystem = Math.floor(Math.random() * 70) + 20;
+    
+    const octet1 = Math.floor(Math.random() * 255);
+    const octet2 = Math.floor(Math.random() * 255);
+    const octet3 = Math.floor(Math.random() * 255);
+    const name = `ip-10-${octet1}-${octet2}-${octet3}.ec2.internal`;
+    
+    nodes.push({
+      name,
+      status,
+      roles,
+      pods: `${podsUsed}`,
+      memory: `${memoryUsed} GiB / ${memoryMax} GiB`,
+      cpu: `${cpuUsed} / ${cpuMax} cores`,
+      filesystem: `${filesystem}%`,
+      created,
+      instanceType,
+      cluster: 'production-west',
       namespace,
     });
   }
