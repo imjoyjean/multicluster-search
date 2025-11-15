@@ -66,7 +66,7 @@ interface Node {
 
 // Generate 200 mock nodes with varied metadata
 const generateMockNodes = (): Node[] => {
-  const clusters = ['production-east', 'production-west', 'staging-east', 'staging-west', 'dev-central', 'qa-north'];
+  const clusters = ['production-east', 'production-west', 'staging-east', 'staging-west', 'dev-central', 'qa-north', 'dev-central', 'dev-central'];
   const namespaces = ['default', 'kube-system', 'monitoring', 'logging', 'app-prod', 'app-staging', 'database', 'ingress'];
   const statuses = ['Ready', 'Ready', 'Ready', 'Ready', 'Ready', 'NotReady', 'SchedulingDisabled', 'Unknown'];
   const rolesList = ['worker', 'worker', 'worker', 'worker', 'worker', 'control-plane', 'master', 'infra'];
