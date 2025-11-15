@@ -855,6 +855,11 @@ export const NodesPage: React.FC = () => {
     setPerPage(newPerPage);
     setPage(1);
   };
+  
+  // Reset to page 1 when filters change
+  React.useEffect(() => {
+    setPage(1);
+  }, [queryChips, clusterFilter, namespaceFilter, statusFilter, roleFilter, queryText]);
 
   // Handle filter changes
   const handleClusterFilterChange = (cluster: string, checked: boolean) => {
