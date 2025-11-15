@@ -1208,42 +1208,6 @@ export const NodesPage: React.FC = () => {
             </DropdownList>
           </Dropdown>
         </FlexItem>
-        <FlexItem>
-          <Dropdown
-            isOpen={isInstanceTypeFilterOpen}
-            onSelect={() => {}}
-            onOpenChange={(isOpen: boolean) => setIsInstanceTypeFilterOpen(isOpen)}
-            toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-              <MenuToggle 
-                ref={toggleRef} 
-                onClick={() => setIsInstanceTypeFilterOpen(!isInstanceTypeFilterOpen)}
-                isExpanded={isInstanceTypeFilterOpen}
-                icon={<FilterIcon />}
-                style={{
-                  width: '180px'
-                }}
-              >
-                Instance type {instanceTypeFilter.length > 0 && <Badge isRead>{instanceTypeFilter.length}</Badge>}
-              </MenuToggle>
-            )}
-          >
-            <DropdownList>
-              {uniqueInstanceTypes.map(instanceType => (
-                <DropdownItem 
-                  key={instanceType}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Checkbox
-                    id={`instanceType-${instanceType}`}
-                    label={instanceType}
-                    isChecked={instanceTypeFilter.includes(instanceType)}
-                    onChange={(event, checked) => handleInstanceTypeFilterChange(instanceType, checked)}
-                  />
-                </DropdownItem>
-              ))}
-            </DropdownList>
-          </Dropdown>
-        </FlexItem>
         </Flex>
         </div>
         
