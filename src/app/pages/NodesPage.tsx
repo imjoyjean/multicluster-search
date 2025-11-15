@@ -227,6 +227,43 @@ const generateMockNodes = (): Node[] => {
     });
   }
   
+  // Add 4 specific nodes with NOT Ready status AND filesystem > 70% (for scenario 3)
+  const notReadyStatuses = ['NotReady', 'SchedulingDisabled', 'Unknown'];
+  for (let i = 0; i < 4; i++) {
+    const status = notReadyStatuses[i % notReadyStatuses.length];
+    const roles = rolesList[i % rolesList.length];
+    const instanceType = instanceTypes[i % instanceTypes.length];
+    const created = days[i % days.length];
+    const cluster = clusters[i % clusters.length];
+    const namespace = namespaces[i % namespaces.length];
+    
+    const podsUsed = Math.floor(Math.random() * 100) + 10;
+    const memoryUsed = (Math.random() * 28 + 4).toFixed(1);
+    const memoryMax = instanceType.includes('2xlarge') ? 32 : instanceType.includes('4xlarge') ? 64 : 16;
+    const cpuUsed = (Math.random() * 6 + 0.5).toFixed(1);
+    const cpuMax = instanceType.includes('2xlarge') ? 8 : instanceType.includes('4xlarge') ? 16 : 4;
+    const filesystem = Math.floor(Math.random() * 20) + 71; // 71-90%
+    
+    const octet1 = Math.floor(Math.random() * 255);
+    const octet2 = Math.floor(Math.random() * 255);
+    const octet3 = Math.floor(Math.random() * 255);
+    const name = `ip-10-${octet1}-${octet2}-${octet3}.ec2.internal`;
+    
+    nodes.push({
+      name,
+      status,
+      roles,
+      pods: `${podsUsed}`,
+      memory: `${memoryUsed} GiB / ${memoryMax} GiB`,
+      cpu: `${cpuUsed} / ${cpuMax} cores`,
+      filesystem: `${filesystem}%`,
+      created,
+      instanceType,
+      cluster,
+      namespace,
+    });
+  }
+  
   return nodes;
 };
 
