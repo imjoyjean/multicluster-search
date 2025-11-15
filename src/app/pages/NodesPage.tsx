@@ -83,6 +83,11 @@ const generateMockNodes = (): Node[] => {
     const instanceType = instanceTypes[i % instanceTypes.length];
     const created = days[i % days.length];
     
+    // Skip nodes with dev-central cluster and worker role (we'll add exactly 5 later)
+    if (cluster === 'dev-central' && roles === 'worker') {
+      continue;
+    }
+    
     // Generate varied metrics
     const podsUsed = Math.floor(Math.random() * 100) + 10;
     const podsMax = 110;
