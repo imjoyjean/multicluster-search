@@ -50,226 +50,89 @@ import { Table, Thead, Tbody, Tr, Th, Td, ThProps } from '@patternfly/react-tabl
 import { CheckCircleIcon, FilterIcon, SearchIcon, ColumnsIcon, GripVerticalIcon } from '@patternfly/react-icons';
 import { useSearchParams } from 'react-router-dom';
 
-interface Node {
+interface Pod {
   name: string;
+  namespace: string;
   status: string;
-  roles: string;
-  pods: string;
+  ready: string;
+  restarts: number;
+  owner: string;
   memory: string;
   cpu: string;
-  filesystem: string;
   created: string;
-  instanceType: string;
+  node: string;
+  labels: string;
+  ipAddress: string;
+  receivingTraffic: string;
   cluster: string;
-  namespace: string;
 }
 
-// Generate 200 mock nodes with varied metadata
-const generateMockNodes = (): Node[] => {
-  const clusters = ['production-east', 'production-west', 'staging-east', 'staging-west', 'dev-central', 'qa-north', 'dev-central', 'dev-central'];
-  const namespaces = ['default', 'kube-system', 'monitoring', 'logging', 'app-prod', 'app-staging', 'database', 'ingress'];
-  const statuses = ['Ready', 'Ready', 'Ready', 'Ready', 'Ready', 'NotReady', 'SchedulingDisabled', 'Unknown'];
-  const rolesList = ['worker', 'worker', 'worker', 'worker', 'worker', 'control-plane', 'master', 'infra'];
-  const instanceTypes = ['m5.xlarge', 'm5.2xlarge', 'm5.4xlarge', 't3.large', 't3.xlarge', 'c5.2xlarge'];
-  const days = ['1 day ago', '2 days ago', '3 days ago', '5 days ago', '1 week ago', '2 weeks ago', '1 month ago'];
+// Generate mock pods with varied metadata
+const generateMockPods = (): Pod[] => {
+  const clusters = ['production-east', 'production-west', 'staging-east', 'staging-west', 'dev-central', 'qa-north'];
+  const namespaces = ['default', 'kube-system', 'monitoring', 'logging', 'app-prod', 'app-staging', 'database', 'multicluster-engine'];
+  const statuses = ['Running', 'Running', 'Running', 'Running', 'Completed', 'Error', 'Pending'];
+  const owners = ['clusterclaims-controller', 'etcd-operator', 'kube-apiserver', 'coredns', 'metrics-server', 'ingress-controller'];
+  const nodeNames = ['worker-1', 'worker-2', 'worker-3', 'control-plane-1', 'control-plane-2'];
+  const days = ['Nov 7, 2025, 9:49 PM', 'Nov 9, 2025, 3:04 AM', 'Nov 9, 2025, 2:51 AM', 'Nov 7, 2025, 9:40 PM'];
   
-  const nodes: Node[] = [];
+  const pods: Pod[] = [];
   
-  for (let i = 0; i < 200; i++) {
+  for (let i = 0; i < 50; i++) {
     const cluster = clusters[i % clusters.length];
     const namespace = namespaces[i % namespaces.length];
     const status = statuses[i % statuses.length];
-    const roles = rolesList[i % rolesList.length];
-    const instanceType = instanceTypes[i % instanceTypes.length];
+    const owner = owners[i % owners.length];
+    const nodeName = nodeNames[i % nodeNames.length];
     const created = days[i % days.length];
     
-    // Skip nodes with dev-central cluster and worker role (we'll add exactly 5 later)
-    if (cluster === 'dev-central' && roles === 'worker') {
-      continue;
-    }
+    // Generate pod metrics
+    const readyCount = Math.random() > 0.2 ? 2 : Math.floor(Math.random() * 2);
+    const ready = `${readyCount}/2`;
+    const restarts = Math.floor(Math.random() * 5);
+    const memoryMiB = (Math.random() * 100 + 10).toFixed(1);
+    const cpuCores = (Math.random() * 0.1).toFixed(3);
     
-    // Skip nodes with production-west cluster and t3.large instance type (we'll add exactly 5 later)
-    if (cluster === 'production-west' && instanceType === 't3.large') {
-      continue;
-    }
+    // Generate pod name with random hash
+    const hash = Math.random().toString(36).substring(2, 7);
+    const podName = `${owner}-6c8dbfbf85-${hash}`;
     
-    // Generate varied metrics
-    const podsUsed = Math.floor(Math.random() * 100) + 10;
-    const podsMax = 110;
-    const memoryUsed = (Math.random() * 28 + 4).toFixed(1);
-    const memoryMax = instanceType.includes('2xlarge') ? 32 : instanceType.includes('4xlarge') ? 64 : 16;
-    const cpuUsed = (Math.random() * 6 + 0.5).toFixed(1);
-    const cpuMax = instanceType.includes('2xlarge') ? 8 : instanceType.includes('4xlarge') ? 16 : 4;
-    const filesystem = Math.floor(Math.random() * 70) + 20;
+    // Generate IP address
+    const ipOctet3 = Math.floor(Math.random() * 255);
+    const ipOctet4 = Math.floor(Math.random() * 255);
+    const ipAddress = `10.128.${ipOctet3}.${ipOctet4}`;
     
-    // Generate realistic node name
-    const octet1 = Math.floor(Math.random() * 255);
-    const octet2 = Math.floor(Math.random() * 255);
-    const octet3 = Math.floor(Math.random() * 255);
-    const name = `ip-10-${octet1}-${octet2}-${octet3}.ec2.internal`;
+    // Generate labels
+    const labels = `app=${owner},pod-template-hash=6c8dbfbf85`;
     
-    nodes.push({
-      name,
+    // Receiving traffic
+    const receivingTraffic = Math.random() > 0.5 ? 'Yes' : 'No';
+    
+    pods.push({
+      name: podName,
+      namespace,
       status,
-      roles,
-      pods: `${podsUsed}`,
-      memory: `${memoryUsed} GiB / ${memoryMax} GiB`,
-      cpu: `${cpuUsed} / ${cpuMax} cores`,
-      filesystem: `${filesystem}%`,
+      ready,
+      restarts,
+      owner: `${owner}-6c8dbfbf85`,
+      memory: `${memoryMiB} MiB`,
+      cpu: `${cpuCores} cores`,
       created,
-      instanceType,
+      node: nodeName,
+      labels,
+      ipAddress,
+      receivingTraffic,
       cluster,
-      namespace,
     });
   }
   
-  // Add some specific nodes with production-west cluster and default namespace
-  for (let i = 0; i < 4; i++) {
-    const status = statuses[i % statuses.length];
-    const roles = rolesList[i % rolesList.length];
-    const instanceType = instanceTypes[i % instanceTypes.length];
-    const created = days[i % days.length];
-    
-    const podsUsed = Math.floor(Math.random() * 100) + 10;
-    const memoryUsed = (Math.random() * 28 + 4).toFixed(1);
-    const memoryMax = instanceType.includes('2xlarge') ? 32 : instanceType.includes('4xlarge') ? 64 : 16;
-    const cpuUsed = (Math.random() * 6 + 0.5).toFixed(1);
-    const cpuMax = instanceType.includes('2xlarge') ? 8 : instanceType.includes('4xlarge') ? 16 : 4;
-    const filesystem = Math.floor(Math.random() * 70) + 20;
-    
-    const octet1 = Math.floor(Math.random() * 255);
-    const octet2 = Math.floor(Math.random() * 255);
-    const octet3 = Math.floor(Math.random() * 255);
-    const name = `ip-10-${octet1}-${octet2}-${octet3}.ec2.internal`;
-    
-    nodes.push({
-      name,
-      status,
-      roles,
-      pods: `${podsUsed}`,
-      memory: `${memoryUsed} GiB / ${memoryMax} GiB`,
-      cpu: `${cpuUsed} / ${cpuMax} cores`,
-      filesystem: `${filesystem}%`,
-      created,
-      instanceType,
-      cluster: 'production-west',
-      namespace: 'default',
-    });
-  }
-  
-  // Add 5 specific nodes with dev-central cluster and worker role
-  for (let i = 0; i < 5; i++) {
-    const status = statuses[i % statuses.length];
-    const roles = 'worker';
-    const instanceType = instanceTypes[i % instanceTypes.length];
-    const created = days[i % days.length];
-    const namespace = namespaces[i % namespaces.length];
-    
-    const podsUsed = Math.floor(Math.random() * 100) + 10;
-    const memoryUsed = (Math.random() * 28 + 4).toFixed(1);
-    const memoryMax = instanceType.includes('2xlarge') ? 32 : instanceType.includes('4xlarge') ? 64 : 16;
-    const cpuUsed = (Math.random() * 6 + 0.5).toFixed(1);
-    const cpuMax = instanceType.includes('2xlarge') ? 8 : instanceType.includes('4xlarge') ? 16 : 4;
-    const filesystem = Math.floor(Math.random() * 70) + 20;
-    
-    const octet1 = Math.floor(Math.random() * 255);
-    const octet2 = Math.floor(Math.random() * 255);
-    const octet3 = Math.floor(Math.random() * 255);
-    const name = `ip-10-${octet1}-${octet2}-${octet3}.ec2.internal`;
-    
-    nodes.push({
-      name,
-      status,
-      roles,
-      pods: `${podsUsed}`,
-      memory: `${memoryUsed} GiB / ${memoryMax} GiB`,
-      cpu: `${cpuUsed} / ${cpuMax} cores`,
-      filesystem: `${filesystem}%`,
-      created,
-      instanceType,
-      cluster: 'dev-central',
-      namespace,
-    });
-  }
-  
-  // Add 5 specific nodes with production-west cluster and t3.large instance type
-  for (let i = 0; i < 5; i++) {
-    const status = statuses[i % statuses.length];
-    const roles = rolesList[i % rolesList.length];
-    const instanceType = 't3.large';
-    const created = days[i % days.length];
-    const namespace = namespaces[i % namespaces.length];
-    
-    const podsUsed = Math.floor(Math.random() * 100) + 10;
-    const memoryUsed = (Math.random() * 28 + 4).toFixed(1);
-    const memoryMax = 16;
-    const cpuUsed = (Math.random() * 6 + 0.5).toFixed(1);
-    const cpuMax = 4;
-    const filesystem = Math.floor(Math.random() * 70) + 20;
-    
-    const octet1 = Math.floor(Math.random() * 255);
-    const octet2 = Math.floor(Math.random() * 255);
-    const octet3 = Math.floor(Math.random() * 255);
-    const name = `ip-10-${octet1}-${octet2}-${octet3}.ec2.internal`;
-    
-    nodes.push({
-      name,
-      status,
-      roles,
-      pods: `${podsUsed}`,
-      memory: `${memoryUsed} GiB / ${memoryMax} GiB`,
-      cpu: `${cpuUsed} / ${cpuMax} cores`,
-      filesystem: `${filesystem}%`,
-      created,
-      instanceType,
-      cluster: 'production-west',
-      namespace,
-    });
-  }
-  
-  // Add 4 specific nodes with NOT Ready status AND filesystem > 70% (for scenario 3)
-  const notReadyStatuses = ['NotReady', 'SchedulingDisabled', 'Unknown'];
-  for (let i = 0; i < 4; i++) {
-    const status = notReadyStatuses[i % notReadyStatuses.length];
-    const roles = rolesList[i % rolesList.length];
-    const instanceType = instanceTypes[i % instanceTypes.length];
-    const created = days[i % days.length];
-    const cluster = clusters[i % clusters.length];
-    const namespace = namespaces[i % namespaces.length];
-    
-    const podsUsed = Math.floor(Math.random() * 100) + 10;
-    const memoryUsed = (Math.random() * 28 + 4).toFixed(1);
-    const memoryMax = instanceType.includes('2xlarge') ? 32 : instanceType.includes('4xlarge') ? 64 : 16;
-    const cpuUsed = (Math.random() * 6 + 0.5).toFixed(1);
-    const cpuMax = instanceType.includes('2xlarge') ? 8 : instanceType.includes('4xlarge') ? 16 : 4;
-    const filesystem = Math.floor(Math.random() * 20) + 71; // 71-90%
-    
-    const octet1 = Math.floor(Math.random() * 255);
-    const octet2 = Math.floor(Math.random() * 255);
-    const octet3 = Math.floor(Math.random() * 255);
-    const name = `ip-10-${octet1}-${octet2}-${octet3}.ec2.internal`;
-    
-    nodes.push({
-      name,
-      status,
-      roles,
-      pods: `${podsUsed}`,
-      memory: `${memoryUsed} GiB / ${memoryMax} GiB`,
-      cpu: `${cpuUsed} / ${cpuMax} cores`,
-      filesystem: `${filesystem}%`,
-      created,
-      instanceType,
-      cluster,
-      namespace,
-    });
-  }
-  
-  return nodes;
+  return pods;
 };
 
-const mockNodes: Node[] = generateMockNodes();
+const mockPods: Pod[] = generateMockPods();
 
-export const NodesPage: React.FC = () => {
+
+export const PodsPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   
   const [page, setPage] = React.useState(parseInt(searchParams.get('page') || '1'));
@@ -301,16 +164,18 @@ export const NodesPage: React.FC = () => {
   // Column management
   const columnConfig: Record<string, { label: string; isDefault: boolean; isRequired?: boolean }> = {
     name: { label: 'Name', isDefault: true, isRequired: true },
+    namespace: { label: 'Namespace', isDefault: true },
     status: { label: 'Status', isDefault: true },
-    roles: { label: 'Roles', isDefault: true },
-    pods: { label: 'Pods', isDefault: true },
+    ready: { label: 'Ready', isDefault: true },
+    restarts: { label: 'Restarts', isDefault: true },
+    owner: { label: 'Owner', isDefault: true },
     memory: { label: 'Memory', isDefault: true },
     cpu: { label: 'CPU', isDefault: true },
-    filesystem: { label: 'Filesystem', isDefault: true },
     created: { label: 'Created', isDefault: true },
-    instanceType: { label: 'Instance type', isDefault: true },
-    cluster: { label: 'Cluster', isDefault: false },
-    namespace: { label: 'Namespace', isDefault: false },
+    node: { label: 'Node', isDefault: false },
+    labels: { label: 'Labels', isDefault: false },
+    ipAddress: { label: 'IP address', isDefault: false },
+    receivingTraffic: { label: 'Receiving Traffic', isDefault: false },
   };
   
   const defaultColumns = Object.keys(columnConfig).filter(key => columnConfig[key].isDefault);
@@ -401,15 +266,15 @@ export const NodesPage: React.FC = () => {
   };
 
   // Get unique values for filters
-  const uniqueClusters = React.useMemo(() => Array.from(new Set(mockNodes.map(n => n.cluster))), []);
-  const uniqueNamespaces = React.useMemo(() => Array.from(new Set(mockNodes.map(n => n.namespace))), []);
-  const uniqueStatuses = React.useMemo(() => Array.from(new Set(mockNodes.map(n => n.status))), []);
+  const uniqueClusters = React.useMemo(() => Array.from(new Set(mockPods.map(n => n.cluster))), []);
+  const uniqueNamespaces = React.useMemo(() => Array.from(new Set(mockPods.map(n => n.namespace))), []);
+  const uniqueStatuses = React.useMemo(() => Array.from(new Set(mockPods.map(n => n.status))), []);
   const uniqueRoles = React.useMemo(() => {
     const roles = new Set<string>();
-    mockNodes.forEach(n => n.roles.split(',').forEach(r => roles.add(r.trim())));
+    mockPods.forEach(n => n.roles.split(',').forEach(r => roles.add(r.trim())));
     return Array.from(roles);
   }, []);
-  const uniqueInstanceTypes = React.useMemo(() => Array.from(new Set(mockNodes.map(n => n.instanceType))), []);
+  const uniqueInstanceTypes = React.useMemo(() => Array.from(new Set(mockPods.map(n => n.instanceType))), []);
 
   // Add query chip
   const addQueryChip = (type: string, label: string, value: string) => {
@@ -465,7 +330,7 @@ export const NodesPage: React.FC = () => {
       const afterColon = queryText.substring(filterType.length + 1);
       
       if (filterType === 'name') {
-        const matches = mockNodes
+        const matches = mockPods
           .filter(node => !afterColon || node.name.toLowerCase().includes(afterColon.toLowerCase()))
           .slice(0, 10)
           .map(node => ({ text: `name:${node.name}`, displayText: node.name }));
@@ -491,41 +356,41 @@ export const NodesPage: React.FC = () => {
           .map(role => ({ text: `role:${role}`, displayText: role }));
         if (matches.length > 0) sections.push({ title: 'Role', items: matches });
       } else if (filterType === 'instancetype') {
-        const instanceTypes = Array.from(new Set(mockNodes.map(n => n.instanceType)));
+        const instanceTypes = Array.from(new Set(mockPods.map(n => n.instanceType)));
         const matches = instanceTypes
           .filter(type => !afterColon || type.toLowerCase().includes(afterColon.toLowerCase()))
           .map(type => ({ text: `instanceType:${type}`, displayText: type }));
         if (matches.length > 0) sections.push({ title: 'Instance Type', items: matches });
       } else if (filterType === 'pods') {
-        const podsValues = Array.from(new Set(mockNodes.map(n => n.pods)));
+        const podsValues = Array.from(new Set(mockPods.map(n => n.pods)));
         const matches = podsValues
           .filter(pods => !afterColon || pods.toLowerCase().includes(afterColon.toLowerCase()))
           .slice(0, 10)
           .map(pods => ({ text: `pods:${pods}`, displayText: pods }));
         if (matches.length > 0) sections.push({ title: 'Pods', items: matches });
       } else if (filterType === 'memory') {
-        const memoryValues = Array.from(new Set(mockNodes.map(n => n.memory)));
+        const memoryValues = Array.from(new Set(mockPods.map(n => n.memory)));
         const matches = memoryValues
           .filter(memory => !afterColon || memory.toLowerCase().includes(afterColon.toLowerCase()))
           .slice(0, 10)
           .map(memory => ({ text: `memory:${memory}`, displayText: memory }));
         if (matches.length > 0) sections.push({ title: 'Memory', items: matches });
       } else if (filterType === 'cpu') {
-        const cpuValues = Array.from(new Set(mockNodes.map(n => n.cpu)));
+        const cpuValues = Array.from(new Set(mockPods.map(n => n.cpu)));
         const matches = cpuValues
           .filter(cpu => !afterColon || cpu.toLowerCase().includes(afterColon.toLowerCase()))
           .slice(0, 10)
           .map(cpu => ({ text: `cpu:${cpu}`, displayText: cpu }));
         if (matches.length > 0) sections.push({ title: 'CPU', items: matches });
       } else if (filterType === 'filesystem') {
-        const filesystemValues = Array.from(new Set(mockNodes.map(n => n.filesystem)));
+        const filesystemValues = Array.from(new Set(mockPods.map(n => n.filesystem)));
         const matches = filesystemValues
           .filter(filesystem => !afterColon || filesystem.toLowerCase().includes(afterColon.toLowerCase()))
           .slice(0, 10)
           .map(filesystem => ({ text: `filesystem:${filesystem}`, displayText: filesystem }));
         if (matches.length > 0) sections.push({ title: 'Filesystem', items: matches });
       } else if (filterType === 'created') {
-        const createdValues = Array.from(new Set(mockNodes.map(n => n.created)));
+        const createdValues = Array.from(new Set(mockPods.map(n => n.created)));
         const matches = createdValues
           .filter(created => !afterColon || created.toLowerCase().includes(afterColon.toLowerCase()))
           .map(created => ({ text: `created:${created}`, displayText: created }));
@@ -564,7 +429,7 @@ export const NodesPage: React.FC = () => {
       }
       
       // Node name matches
-      const nodeMatches = mockNodes
+      const nodeMatches = mockPods
         .filter(node => node.name.toLowerCase().includes(searchLower))
         .slice(0, 3)
         .map(node => ({ text: `name:${node.name}`, displayText: node.name }));
@@ -647,8 +512,8 @@ export const NodesPage: React.FC = () => {
   };
 
   // Filter nodes with AND logic for all filters
-  const filteredNodes = React.useMemo(() => {
-    return mockNodes.filter(node => {
+  const filteredPods = React.useMemo(() => {
+    return mockPods.filter(node => {
       // Collect all filter conditions
       const conditions: boolean[] = [];
       
@@ -770,12 +635,12 @@ export const NodesPage: React.FC = () => {
   }, [queryText, queryChips, clusterFilter, namespaceFilter, statusFilter, roleFilter]);
 
   // Sort nodes
-  const sortedNodes = React.useMemo(() => {
+  const sortedPods = React.useMemo(() => {
     if (activeSortIndex === null) {
-      return filteredNodes;
+      return filteredPods;
     }
 
-    const sortedArray = [...filteredNodes];
+    const sortedArray = [...filteredPods];
     const columnKey = visibleColumns[activeSortIndex];
 
     sortedArray.sort((a, b) => {
@@ -843,12 +708,12 @@ export const NodesPage: React.FC = () => {
     });
 
     return sortedArray;
-  }, [filteredNodes, activeSortIndex, activeSortDirection, visibleColumns]);
+  }, [filteredPods, activeSortIndex, activeSortDirection, visibleColumns]);
 
-  const paginatedNodes = React.useMemo(() => {
+  const paginatedPods = React.useMemo(() => {
     const start = (page - 1) * perPage;
-    return sortedNodes.slice(start, start + perPage);
-  }, [sortedNodes, page, perPage]);
+    return sortedPods.slice(start, start + perPage);
+  }, [sortedPods, page, perPage]);
 
   const onSetPage = (_event: any, pageNumber: number) => setPage(pageNumber);
   const onPerPageSelect = (_event: any, newPerPage: number) => {
@@ -928,37 +793,41 @@ export const NodesPage: React.FC = () => {
   };
 
   // Helper function to render cell content
-  const renderCellContent = (node: Node, column: string) => {
+  const renderCellContent = (pod: Pod, column: string) => {
     switch (column) {
       case 'name':
-        return node.name;
+        return pod.name;
+      case 'namespace':
+        return pod.namespace;
       case 'status':
         return (
           <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }} style={{ gap: '0.25rem' }}>
             <FlexItem>
-              <CheckCircleIcon style={{ color: 'var(--pf-v5-global--success-color--100)', fontSize: '14px' }} />
+              {pod.status === 'Running' && <CheckCircleIcon style={{ color: 'var(--pf-v5-global--success-color--100)', fontSize: '14px' }} />}
             </FlexItem>
-            <FlexItem style={{ fontSize: '14px' }}>{node.status}</FlexItem>
+            <FlexItem style={{ fontSize: '14px' }}>{pod.status}</FlexItem>
           </Flex>
         );
-      case 'roles':
-        return node.roles;
-      case 'cluster':
-        return node.cluster;
-      case 'namespace':
-        return node.namespace;
-      case 'pods':
-        return node.pods;
+      case 'ready':
+        return pod.ready;
+      case 'restarts':
+        return pod.restarts;
+      case 'owner':
+        return pod.owner;
       case 'memory':
-        return node.memory;
+        return pod.memory;
       case 'cpu':
-        return node.cpu;
-      case 'filesystem':
-        return node.filesystem;
-      case 'instanceType':
-        return node.instanceType;
+        return pod.cpu;
       case 'created':
-        return node.created;
+        return pod.created;
+      case 'node':
+        return pod.node;
+      case 'labels':
+        return pod.labels;
+      case 'ipAddress':
+        return pod.ipAddress;
+      case 'receivingTraffic':
+        return pod.receivingTraffic;
       default:
         return '';
     }
@@ -988,7 +857,7 @@ export const NodesPage: React.FC = () => {
           backgroundColor: '#ffffff',
           padding: 'var(--pf-v5-global--spacer--md) var(--pf-v5-global--spacer--lg)'
         }}>
-          <Title headingLevel="h1" size="xl" style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>Nodes</Title>
+          <Title headingLevel="h1" size="xl" style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>Pods</Title>
       
         {/* Search Bar */}
         <div 
@@ -1350,7 +1219,7 @@ export const NodesPage: React.FC = () => {
           </ToolbarItem>
           <ToolbarItem variant="pagination" align={{ default: 'alignRight' }}>
             <Pagination
-              itemCount={filteredNodes.length}
+              itemCount={filteredPods.length}
               perPage={perPage}
               page={page}
               onSetPage={onSetPage}
@@ -1362,7 +1231,7 @@ export const NodesPage: React.FC = () => {
         </ToolbarContent>
       </Toolbar>
 
-      {filteredNodes.length === 0 ? (
+      {filteredPods.length === 0 ? (
         <div style={{ 
           backgroundColor: '#ffffff',
           padding: 'var(--pf-v5-global--spacer--2xl) var(--pf-v5-global--spacer--lg)',
@@ -1403,7 +1272,7 @@ export const NodesPage: React.FC = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {paginatedNodes.map((node, index) => (
+            {paginatedPods.map((node, index) => (
               <Tr key={index}>
                 {visibleColumns.map(column => (
                   <Td key={column} dataLabel={columnConfig[column].label}>
@@ -1421,7 +1290,7 @@ export const NodesPage: React.FC = () => {
         <ToolbarContent>
           <ToolbarItem align={{ default: 'alignRight' }}>
             <Pagination
-              itemCount={filteredNodes.length}
+              itemCount={filteredPods.length}
               perPage={perPage}
               page={page}
               onSetPage={onSetPage}
@@ -1457,9 +1326,11 @@ export const NodesPage: React.FC = () => {
           <Alert
             variant="info"
             isInline
-            title={`You can select up to ${maxColumns} columns. Name is always visible.`}
+            title={`You can select up to ${maxColumns} columns`}
             style={{ marginBottom: 'var(--pf-v5-global--spacer--lg)' }}
-          />
+          >
+            The namespace column is only shown when in "All projects"
+          </Alert>
           
           <div style={{ 
             fontWeight: 'bold', 

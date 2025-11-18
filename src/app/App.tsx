@@ -17,7 +17,7 @@ import {
   Brand,
 } from '@patternfly/react-core';
 import { BarsIcon } from '@patternfly/react-icons';
-import { NodesPage } from './pages/NodesPage';
+import { PodsPage } from './pages/PodsPage';
 import { VirtualMachinesPage } from './pages/VirtualMachinesPage';
 
 export const App: React.FC = () => {
@@ -56,9 +56,9 @@ export const App: React.FC = () => {
       <PageSidebarBody>
         <Nav>
           <NavList>
-            <NavItem isActive={location.pathname === '/nodes'}>
-              <Link to="/nodes" style={{ textDecoration: 'none', color: 'inherit' }}>
-                Nodes
+            <NavItem isActive={location.pathname === '/pods'}>
+              <Link to="/pods" style={{ textDecoration: 'none', color: 'inherit' }}>
+                Pods
               </Link>
             </NavItem>
             <NavItem isActive={location.pathname === '/virtual-machines'}>
@@ -79,8 +79,8 @@ export const App: React.FC = () => {
       isManagedSidebar
     >
       <Routes>
-        <Route path="/" element={<Navigate to="/nodes" replace />} />
-        <Route path="/nodes" element={<NodesPage />} />
+        <Route path="/" element={<Navigate to="/pods" replace />} />
+        <Route path="/pods" element={<PodsPage />} />
         <Route path="/virtual-machines" element={<VirtualMachinesPage />} />
       </Routes>
     </Page>
