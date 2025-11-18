@@ -151,14 +151,14 @@ export const PodsPage: React.FC = () => {
   const [clusterFilter, setClusterFilter] = React.useState<string[]>([]);
   const [namespaceFilter, setNamespaceFilter] = React.useState<string[]>([]);
   const [statusFilter, setStatusFilter] = React.useState<string[]>([]);
-  const [roleFilter, setRoleFilter] = React.useState<string[]>([]);
+  const [ownerFilter, setOwnerFilter] = React.useState<string[]>([]);
   const [instanceTypeFilter, setInstanceTypeFilter] = React.useState<string[]>([]);
   
   // Dropdown open states
   const [isClusterFilterOpen, setIsClusterFilterOpen] = React.useState(false);
   const [isNamespaceFilterOpen, setIsNamespaceFilterOpen] = React.useState(false);
   const [isStatusFilterOpen, setIsStatusFilterOpen] = React.useState(false);
-  const [isRoleFilterOpen, setIsRoleFilterOpen] = React.useState(false);
+  const [isOwnerFilterOpen, setIsOwnerFilterOpen] = React.useState(false);
   const [isInstanceTypeFilterOpen, setIsInstanceTypeFilterOpen] = React.useState(false);
   
   // Column management
@@ -269,12 +269,8 @@ export const PodsPage: React.FC = () => {
   const uniqueClusters = React.useMemo(() => Array.from(new Set(mockPods.map(n => n.cluster))), []);
   const uniqueNamespaces = React.useMemo(() => Array.from(new Set(mockPods.map(n => n.namespace))), []);
   const uniqueStatuses = React.useMemo(() => Array.from(new Set(mockPods.map(n => n.status))), []);
-  const uniqueRoles = React.useMemo(() => {
-    const roles = new Set<string>();
-    mockPods.forEach(n => n.roles.split(',').forEach(r => roles.add(r.trim())));
-    return Array.from(roles);
-  }, []);
-  const uniqueInstanceTypes = React.useMemo(() => Array.from(new Set(mockPods.map(n => n.instanceType))), []);
+  const uniqueOwners = React.useMemo(() => Array.from(new Set(mockPods.map(n => n.owner))), []);
+  const uniqueNodes = React.useMemo(() => Array.from(new Set(mockPods.map(n => n.node))), []);
 
   // Add query chip
   const addQueryChip = (type: string, label: string, value: string) => {
@@ -295,8 +291,8 @@ export const PodsPage: React.FC = () => {
         setNamespaceFilter(namespaceFilter.filter(n => n !== chip.value));
       } else if (chip.type === 'status') {
         setStatusFilter(statusFilter.filter(s => s !== chip.value));
-      } else if (chip.type === 'role') {
-        setRoleFilter(roleFilter.filter(r => r !== chip.value));
+      } else if (chip.type === 'owner') {
+        setOwnerFilter(ownerFilter.filter(o => o !== chip.value));
       } else if (chip.type === 'instancetype' || chip.type === 'instanceType') {
         setInstanceTypeFilter(instanceTypeFilter.filter(i => i !== chip.value));
       }
@@ -311,7 +307,7 @@ export const PodsPage: React.FC = () => {
     setClusterFilter([]);
     setNamespaceFilter([]);
     setStatusFilter([]);
-    setRoleFilter([]);
+    setOwnerFilter([]);
     setInstanceTypeFilter([]);
   };
 
@@ -323,7 +319,7 @@ export const PodsPage: React.FC = () => {
     const sections: Array<{ title: string; items: Array<{ text: string; displayText: string }> }> = [];
     
     // Check if user is typing a filter prefix
-    const filterPrefixMatch = queryText.match(/^(name|cluster|namespace|status|role|pods|memory|cpu|filesystem|instancetype|created):/i);
+    const filterPrefixMatch = queryText.match(/^(name|namespace|status|ready|owner|node|memory|cpu|created|cluster):/i);
     
     if (filterPrefixMatch) {
       const filterType = filterPrefixMatch[1].toLowerCase();
@@ -350,24 +346,23 @@ export const PodsPage: React.FC = () => {
           .filter(status => !afterColon || status.toLowerCase().includes(afterColon.toLowerCase()))
           .map(status => ({ text: `status:${status}`, displayText: status }));
         if (matches.length > 0) sections.push({ title: 'Status', items: matches });
-      } else if (filterType === 'role') {
-        const matches = uniqueRoles
-          .filter(role => !afterColon || role.toLowerCase().includes(afterColon.toLowerCase()))
-          .map(role => ({ text: `role:${role}`, displayText: role }));
-        if (matches.length > 0) sections.push({ title: 'Role', items: matches });
-      } else if (filterType === 'instancetype') {
-        const instanceTypes = Array.from(new Set(mockPods.map(n => n.instanceType)));
-        const matches = instanceTypes
-          .filter(type => !afterColon || type.toLowerCase().includes(afterColon.toLowerCase()))
-          .map(type => ({ text: `instanceType:${type}`, displayText: type }));
-        if (matches.length > 0) sections.push({ title: 'Instance Type', items: matches });
-      } else if (filterType === 'pods') {
-        const podsValues = Array.from(new Set(mockPods.map(n => n.pods)));
-        const matches = podsValues
-          .filter(pods => !afterColon || pods.toLowerCase().includes(afterColon.toLowerCase()))
+      } else if (filterType === 'owner') {
+        const matches = uniqueOwners
+          .filter(owner => !afterColon || owner.toLowerCase().includes(afterColon.toLowerCase()))
+          .map(owner => ({ text: `owner:${owner}`, displayText: owner }));
+        if (matches.length > 0) sections.push({ title: 'Owner', items: matches });
+      } else if (filterType === 'node') {
+        const matches = uniqueNodes
+          .filter(node => !afterColon || node.toLowerCase().includes(afterColon.toLowerCase()))
+          .map(node => ({ text: `node:${node}`, displayText: node }));
+        if (matches.length > 0) sections.push({ title: 'Node', items: matches });
+      } else if (filterType === 'ready') {
+        const readyValues = Array.from(new Set(mockPods.map(n => n.ready)));
+        const matches = readyValues
+          .filter(ready => !afterColon || ready.toLowerCase().includes(afterColon.toLowerCase()))
           .slice(0, 10)
-          .map(pods => ({ text: `pods:${pods}`, displayText: pods }));
-        if (matches.length > 0) sections.push({ title: 'Pods', items: matches });
+          .map(ready => ({ text: `ready:${ready}`, displayText: ready }));
+        if (matches.length > 0) sections.push({ title: 'Ready', items: matches });
       } else if (filterType === 'memory') {
         const memoryValues = Array.from(new Set(mockPods.map(n => n.memory)));
         const matches = memoryValues
@@ -382,13 +377,6 @@ export const PodsPage: React.FC = () => {
           .slice(0, 10)
           .map(cpu => ({ text: `cpu:${cpu}`, displayText: cpu }));
         if (matches.length > 0) sections.push({ title: 'CPU', items: matches });
-      } else if (filterType === 'filesystem') {
-        const filesystemValues = Array.from(new Set(mockPods.map(n => n.filesystem)));
-        const matches = filesystemValues
-          .filter(filesystem => !afterColon || filesystem.toLowerCase().includes(afterColon.toLowerCase()))
-          .slice(0, 10)
-          .map(filesystem => ({ text: `filesystem:${filesystem}`, displayText: filesystem }));
-        if (matches.length > 0) sections.push({ title: 'Filesystem', items: matches });
       } else if (filterType === 'created') {
         const createdValues = Array.from(new Set(mockPods.map(n => n.created)));
         const matches = createdValues
@@ -398,7 +386,7 @@ export const PodsPage: React.FC = () => {
       }
     } else {
       // Regular search - show suggestions for searchable fields
-      const keywords = ['name:', 'cluster:', 'namespace:', 'status:', 'role:', 'instanceType:', 'pods:', 'memory:', 'cpu:', 'filesystem:', 'created:'];
+      const keywords = ['name:', 'namespace:', 'status:', 'ready:', 'owner:', 'node:', 'memory:', 'cpu:', 'created:', 'cluster:'];
       const matchingKeywords = keywords.filter(kw => kw.toLowerCase().includes(searchLower));
       
       if (matchingKeywords.length > 0) {
@@ -428,12 +416,12 @@ export const PodsPage: React.FC = () => {
         });
       }
       
-      // Node name matches
-      const nodeMatches = mockPods
-        .filter(node => node.name.toLowerCase().includes(searchLower))
+      // Pod name matches
+      const nameMatches = mockPods
+        .filter(p => p.name.toLowerCase().includes(searchLower))
         .slice(0, 3)
-        .map(node => ({ text: `name:${node.name}`, displayText: node.name }));
-      if (nodeMatches.length > 0) sections.push({ title: 'Name', items: nodeMatches });
+        .map(p => ({ text: `name:${p.name}`, displayText: p.name }));
+      if (nameMatches.length > 0) sections.push({ title: 'Name', items: nameMatches });
       
       // Value matches for filters
       const clusterMatches = uniqueClusters
@@ -460,25 +448,25 @@ export const PodsPage: React.FC = () => {
         sections.push({ title: 'Status', items: statusMatches });
       }
       
-      const roleMatches = uniqueRoles
-        .filter(r => r.toLowerCase().includes(searchLower))
+      const ownerMatches = uniqueOwners
+        .filter(o => o.toLowerCase().includes(searchLower))
         .slice(0, 5)
-        .map(r => ({ text: `role:${r}`, displayText: r }));
-      if (roleMatches.length > 0) {
-        sections.push({ title: 'Role', items: roleMatches });
+        .map(o => ({ text: `owner:${o}`, displayText: o }));
+      if (ownerMatches.length > 0) {
+        sections.push({ title: 'Owner', items: ownerMatches });
       }
       
-      const instanceTypeMatches = uniqueInstanceTypes
-        .filter(it => it.toLowerCase().includes(searchLower))
+      const nodeMatches = uniqueNodes
+        .filter(n => n.toLowerCase().includes(searchLower))
         .slice(0, 5)
-        .map(it => ({ text: `instanceType:${it}`, displayText: it }));
-      if (instanceTypeMatches.length > 0) {
-        sections.push({ title: 'Instance type', items: instanceTypeMatches });
+        .map(n => ({ text: `node:${n}`, displayText: n }));
+      if (nodeMatches.length > 0) {
+        sections.push({ title: 'Node', items: nodeMatches });
       }
     }
     
     return { sections, hasResults: sections.length > 0 };
-  }, [queryText, uniqueClusters, uniqueNamespaces, uniqueStatuses, uniqueRoles, uniqueInstanceTypes]);
+  }, [queryText, uniqueClusters, uniqueNamespaces, uniqueStatuses, uniqueOwners, uniqueNodes]);
 
   // Helper function to compare numeric values with operators
   const compareNumeric = (nodeValue: string, filterValue: string): boolean => {
@@ -513,49 +501,46 @@ export const PodsPage: React.FC = () => {
 
   // Filter nodes with AND logic for all filters
   const filteredPods = React.useMemo(() => {
-    return mockPods.filter(node => {
+    return mockPods.filter(pod => {
       // Collect all filter conditions
       const conditions: boolean[] = [];
       
       // Process query chips (label:value pairs from filter dropdowns)
       queryChips.forEach(chip => {
         if (chip.type === 'cluster') {
-          conditions.push(node.cluster.toLowerCase() === chip.value.toLowerCase());
+          conditions.push(pod.cluster.toLowerCase() === chip.value.toLowerCase());
         } else if (chip.type === 'namespace') {
-          conditions.push(node.namespace.toLowerCase() === chip.value.toLowerCase());
+          conditions.push(pod.namespace.toLowerCase() === chip.value.toLowerCase());
         } else if (chip.type === 'status') {
-          conditions.push(node.status.toLowerCase() === chip.value.toLowerCase());
-        } else if (chip.type === 'role') {
-          conditions.push(node.roles.toLowerCase().includes(chip.value.toLowerCase()));
+          conditions.push(pod.status.toLowerCase() === chip.value.toLowerCase());
+        } else if (chip.type === 'owner') {
+          conditions.push(pod.owner.toLowerCase().includes(chip.value.toLowerCase()));
         } else if (chip.type === 'name') {
-          conditions.push(node.name.toLowerCase() === chip.value.toLowerCase());
-        } else if (chip.type === 'pods') {
-          conditions.push(compareNumeric(node.pods, chip.value));
+          conditions.push(pod.name.toLowerCase() === chip.value.toLowerCase());
+        } else if (chip.type === 'ready') {
+          conditions.push(pod.ready.toLowerCase().includes(chip.value.toLowerCase()));
         } else if (chip.type === 'memory') {
-          conditions.push(compareNumeric(node.memory, chip.value));
+          conditions.push(compareNumeric(pod.memory, chip.value));
         } else if (chip.type === 'cpu') {
-          conditions.push(compareNumeric(node.cpu, chip.value));
-        } else if (chip.type === 'filesystem') {
-          conditions.push(compareNumeric(node.filesystem, chip.value));
-        } else if (chip.type === 'instancetype' || chip.type === 'instanceType') {
-          conditions.push(node.instanceType.toLowerCase().includes(chip.value.toLowerCase()));
+          conditions.push(compareNumeric(pod.cpu, chip.value));
+        } else if (chip.type === 'node') {
+          conditions.push(pod.node.toLowerCase().includes(chip.value.toLowerCase()));
         } else if (chip.type === 'created') {
-          conditions.push(node.created.toLowerCase().includes(chip.value.toLowerCase()));
+          conditions.push(pod.created.toLowerCase().includes(chip.value.toLowerCase()));
         } else if (chip.type === 'search') {
           // General search - check if it matches any field
           const searchLower = chip.value.toLowerCase();
           const matchesAnyField = 
-            node.name.toLowerCase().includes(searchLower) ||
-            node.cluster.toLowerCase().includes(searchLower) ||
-            node.namespace.toLowerCase().includes(searchLower) ||
-            node.status.toLowerCase().includes(searchLower) ||
-            node.roles.toLowerCase().includes(searchLower) ||
-            node.pods.toLowerCase().includes(searchLower) ||
-            node.memory.toLowerCase().includes(searchLower) ||
-            node.cpu.toLowerCase().includes(searchLower) ||
-            node.filesystem.toLowerCase().includes(searchLower) ||
-            node.instanceType.toLowerCase().includes(searchLower) ||
-            node.created.toLowerCase().includes(searchLower);
+            pod.name.toLowerCase().includes(searchLower) ||
+            pod.cluster.toLowerCase().includes(searchLower) ||
+            pod.namespace.toLowerCase().includes(searchLower) ||
+            pod.status.toLowerCase().includes(searchLower) ||
+            pod.owner.toLowerCase().includes(searchLower) ||
+            pod.ready.toLowerCase().includes(searchLower) ||
+            pod.memory.toLowerCase().includes(searchLower) ||
+            pod.cpu.toLowerCase().includes(searchLower) ||
+            pod.node.toLowerCase().includes(searchLower) ||
+            pod.created.toLowerCase().includes(searchLower);
           conditions.push(matchesAnyField);
         }
       });
@@ -563,7 +548,7 @@ export const PodsPage: React.FC = () => {
       // Process queryText for label:value patterns
       if (queryText) {
         // Extract all label:value patterns from queryText
-        const labelValueRegex = /(name|cluster|namespace|status|role|pods|memory|cpu|filesystem|instancetype|instanceType|created):([^\s]+)/gi;
+        const labelValueRegex = /(name|cluster|namespace|status|owner|ready|node|memory|cpu|created):([^\s]+)/gi;
         const matches = [...queryText.matchAll(labelValueRegex)];
         
         if (matches.length > 0) {
@@ -573,66 +558,63 @@ export const PodsPage: React.FC = () => {
             const value = match[2].toLowerCase();
             
             if (label === 'name') {
-              conditions.push(node.name.toLowerCase().includes(value));
+              conditions.push(pod.name.toLowerCase().includes(value));
             } else if (label === 'cluster') {
-              conditions.push(node.cluster.toLowerCase().includes(value));
+              conditions.push(pod.cluster.toLowerCase().includes(value));
             } else if (label === 'namespace') {
-              conditions.push(node.namespace.toLowerCase().includes(value));
+              conditions.push(pod.namespace.toLowerCase().includes(value));
             } else if (label === 'status') {
-              conditions.push(node.status.toLowerCase().includes(value));
-            } else if (label === 'role') {
-              conditions.push(node.roles.toLowerCase().includes(value));
-            } else if (label === 'pods') {
-              conditions.push(compareNumeric(node.pods, value));
+              conditions.push(pod.status.toLowerCase().includes(value));
+            } else if (label === 'owner') {
+              conditions.push(pod.owner.toLowerCase().includes(value));
+            } else if (label === 'ready') {
+              conditions.push(pod.ready.toLowerCase().includes(value));
+            } else if (label === 'node') {
+              conditions.push(pod.node.toLowerCase().includes(value));
             } else if (label === 'memory') {
-              conditions.push(compareNumeric(node.memory, value));
+              conditions.push(compareNumeric(pod.memory, value));
             } else if (label === 'cpu') {
-              conditions.push(compareNumeric(node.cpu, value));
-            } else if (label === 'filesystem') {
-              conditions.push(compareNumeric(node.filesystem, value));
-            } else if (label === 'instancetype') {
-              conditions.push(node.instanceType.toLowerCase().includes(value));
+              conditions.push(compareNumeric(pod.cpu, value));
             } else if (label === 'created') {
-              conditions.push(node.created.toLowerCase().includes(value));
+              conditions.push(pod.created.toLowerCase().includes(value));
             }
           });
         } else {
           // No label:value pattern, search across all fields with OR logic
           const searchLower = queryText.toLowerCase();
           const matchesAnyField = 
-            node.name.toLowerCase().includes(searchLower) ||
-            node.cluster.toLowerCase().includes(searchLower) ||
-            node.namespace.toLowerCase().includes(searchLower) ||
-            node.status.toLowerCase().includes(searchLower) ||
-            node.roles.toLowerCase().includes(searchLower) ||
-            node.pods.toLowerCase().includes(searchLower) ||
-            node.memory.toLowerCase().includes(searchLower) ||
-            node.cpu.toLowerCase().includes(searchLower) ||
-            node.filesystem.toLowerCase().includes(searchLower) ||
-            node.instanceType.toLowerCase().includes(searchLower) ||
-            node.created.toLowerCase().includes(searchLower);
+            pod.name.toLowerCase().includes(searchLower) ||
+            pod.cluster.toLowerCase().includes(searchLower) ||
+            pod.namespace.toLowerCase().includes(searchLower) ||
+            pod.status.toLowerCase().includes(searchLower) ||
+            pod.owner.toLowerCase().includes(searchLower) ||
+            pod.ready.toLowerCase().includes(searchLower) ||
+            pod.memory.toLowerCase().includes(searchLower) ||
+            pod.cpu.toLowerCase().includes(searchLower) ||
+            pod.node.toLowerCase().includes(searchLower) ||
+            pod.created.toLowerCase().includes(searchLower);
           conditions.push(matchesAnyField);
         }
       }
       
       // Apply dropdown filters (multi-select with OR within same type, AND across types)
       if (clusterFilter.length > 0) {
-        conditions.push(clusterFilter.includes(node.cluster));
+        conditions.push(clusterFilter.includes(pod.cluster));
       }
       if (namespaceFilter.length > 0) {
-        conditions.push(namespaceFilter.includes(node.namespace));
+        conditions.push(namespaceFilter.includes(pod.namespace));
       }
       if (statusFilter.length > 0) {
-        conditions.push(statusFilter.includes(node.status));
+        conditions.push(statusFilter.includes(pod.status));
       }
-      if (roleFilter.length > 0) {
-        conditions.push(roleFilter.some(role => node.roles.includes(role)));
+      if (ownerFilter.length > 0) {
+        conditions.push(ownerFilter.some(owner => pod.owner.includes(owner)));
       }
       
       // AND logic: all conditions must be true
       return conditions.length === 0 || conditions.every(condition => condition);
     });
-  }, [queryText, queryChips, clusterFilter, namespaceFilter, statusFilter, roleFilter]);
+  }, [queryText, queryChips, clusterFilter, namespaceFilter, statusFilter, ownerFilter]);
 
   // Sort nodes
   const sortedPods = React.useMemo(() => {
@@ -665,13 +647,13 @@ export const PodsPage: React.FC = () => {
           aValue = a.namespace;
           bValue = b.namespace;
           break;
-        case 'roles':
-          aValue = a.roles;
-          bValue = b.roles;
+        case 'owner':
+          aValue = a.owner;
+          bValue = b.owner;
           break;
-        case 'pods':
-          aValue = parseInt(a.pods) || 0;
-          bValue = parseInt(b.pods) || 0;
+        case 'ready':
+          aValue = a.ready;
+          bValue = b.ready;
           break;
         case 'memory':
           aValue = parseFloat(a.memory.split(' ')[0]) || 0;
@@ -681,13 +663,9 @@ export const PodsPage: React.FC = () => {
           aValue = a.created;
           bValue = b.created;
           break;
-        case 'filesystem':
-          aValue = parseInt(a.filesystem.replace('%', '')) || 0;
-          bValue = parseInt(b.filesystem.replace('%', '')) || 0;
-          break;
-        case 'instanceType':
-          aValue = a.instanceType;
-          bValue = b.instanceType;
+        case 'node':
+          aValue = a.node;
+          bValue = b.node;
           break;
         case 'cpu':
           aValue = parseInt(a.cpu) || 0;
@@ -724,7 +702,7 @@ export const PodsPage: React.FC = () => {
   // Reset to page 1 when filters change
   React.useEffect(() => {
     setPage(1);
-  }, [queryChips, clusterFilter, namespaceFilter, statusFilter, roleFilter, queryText]);
+  }, [queryChips, clusterFilter, namespaceFilter, statusFilter, ownerFilter, queryText]);
 
   // Handle filter changes
   const handleClusterFilterChange = (cluster: string, checked: boolean) => {
@@ -766,16 +744,16 @@ export const PodsPage: React.FC = () => {
     }
   };
 
-  const handleRoleFilterChange = (role: string, checked: boolean) => {
+  const handleOwnerFilterChange = (owner: string, checked: boolean) => {
     const newFilter = checked 
-      ? [...roleFilter, role]
-      : roleFilter.filter(r => r !== role);
-    setRoleFilter(newFilter);
+      ? [...ownerFilter, owner]
+      : ownerFilter.filter(o => o !== owner);
+    setOwnerFilter(newFilter);
     
     if (checked) {
-      addQueryChip('role', `role:${role}`, role);
+      addQueryChip('owner', `owner:${owner}`, owner);
     } else {
-      removeQueryChip(`role-${role.replace(/\s+/g, '-')}`);
+      removeQueryChip(`owner-${owner.replace(/\s+/g, '-')}`);
     }
   };
 
@@ -1165,34 +1143,34 @@ export const PodsPage: React.FC = () => {
         </FlexItem>
         <FlexItem>
           <Dropdown
-            isOpen={isRoleFilterOpen}
+            isOpen={isOwnerFilterOpen}
             onSelect={() => {}}
-            onOpenChange={(isOpen: boolean) => setIsRoleFilterOpen(isOpen)}
+            onOpenChange={(isOpen: boolean) => setIsOwnerFilterOpen(isOpen)}
             toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
               <MenuToggle 
                 ref={toggleRef} 
-                onClick={() => setIsRoleFilterOpen(!isRoleFilterOpen)}
-                isExpanded={isRoleFilterOpen}
+                onClick={() => setIsOwnerFilterOpen(!isOwnerFilterOpen)}
+                isExpanded={isOwnerFilterOpen}
                 icon={<FilterIcon />}
                 style={{
                   width: '180px'
                 }}
               >
-                Role {roleFilter.length > 0 && <Badge isRead>{roleFilter.length}</Badge>}
+                Owner {ownerFilter.length > 0 && <Badge isRead>{ownerFilter.length}</Badge>}
               </MenuToggle>
             )}
           >
             <DropdownList>
-              {uniqueRoles.map(role => (
+              {uniqueOwners.map(owner => (
                 <DropdownItem 
-                  key={role}
+                  key={owner}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <Checkbox
-                    id={`role-${role}`}
-                    label={role}
-                    isChecked={roleFilter.includes(role)}
-                    onChange={(event, checked) => handleRoleFilterChange(role, checked)}
+                    id={`owner-${owner}`}
+                    label={owner}
+                    isChecked={ownerFilter.includes(owner)}
+                    onChange={(event, checked) => handleOwnerFilterChange(owner, checked)}
                   />
                 </DropdownItem>
               ))}
