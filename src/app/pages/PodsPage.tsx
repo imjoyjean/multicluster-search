@@ -981,7 +981,7 @@ export const PodsPage: React.FC = () => {
             <input
               ref={queryInputRef}
               type="text"
-              placeholder={queryChips.length === 0 ? "Search by name or use filters (e.g., status:Running ready:2/2 memory:>20)" : ""}
+              placeholder={queryChips.length === 0 ? "Search by name or use filters (e.g., status:Running, ready:2/2, memory:>20)" : ""}
               value={queryText}
               onChange={(e) => {
                 setQueryText(e.target.value);
