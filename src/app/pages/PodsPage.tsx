@@ -1220,7 +1220,7 @@ export const PodsPage: React.FC = () => {
                 isExpanded={isNamespaceFilterOpen}
                 icon={<FilterIcon />}
                 style={{
-                  width: '180px'
+                  width: '220px'
                 }}
               >
                 Namespace {namespaceFilter.length > 0 && <Badge isRead>{namespaceFilter.length}</Badge>}
