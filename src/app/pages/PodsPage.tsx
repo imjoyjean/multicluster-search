@@ -150,6 +150,42 @@ const generateMockPods = (): Pod[] => {
     });
   }
   
+  // Add specific pods for the high-priority alert scenario:
+  // production-west cluster + CrashLoopBackOff status
+  // Some with >10 restarts, some with <=10 restarts
+  const crashLoopPods = [
+    { name: 'payment-service-7a9d5f8c3b-xk4m2', restarts: 15, namespace: 'app-prod', ready: '0/2' },
+    { name: 'checkout-api-8b4e2d1a9c-q7n5p', restarts: 23, namespace: 'app-prod', ready: '1/2' },
+    { name: 'order-processor-9c5f3a2b1d-w8r6t', restarts: 12, namespace: 'app-staging', ready: '0/2' },
+    { name: 'notification-worker-6d8a4c3e2f-m9k7h', restarts: 5, namespace: 'default', ready: '1/2' },
+    { name: 'email-sender-4e7b9a1c8d-p3x2v', restarts: 8, namespace: 'app-prod', ready: '0/2' },
+    { name: 'webhook-handler-5f2c6d9a3b-j4y8n', restarts: 3, namespace: 'monitoring', ready: '1/2' },
+  ];
+  
+  crashLoopPods.forEach((podData, idx) => {
+    const hash = podData.name.split('-').pop() || 'xxxxx';
+    const baseOwner = podData.name.split('-').slice(0, -1).join('-');
+    const ipOctet3 = 150 + idx;
+    const ipOctet4 = 100 + idx;
+    
+    pods.push({
+      name: podData.name,
+      namespace: podData.namespace,
+      status: 'CrashLoopBackOff',
+      ready: podData.ready,
+      restarts: podData.restarts,
+      owner: baseOwner,
+      memory: `${(Math.random() * 50 + 30).toFixed(1)} MiB`,
+      cpu: `${(Math.random() * 0.2).toFixed(3)} cores`,
+      created: 'Nov 9, 2025, 1:15 AM',
+      node: `worker-${(idx % 3) + 1}`,
+      labels: `app=${baseOwner.split('-')[0]},pod-template-hash=${hash}`,
+      ipAddress: `10.128.${ipOctet3}.${ipOctet4}`,
+      receivingTraffic: 'No',
+      cluster: 'production-west',
+    });
+  });
+  
   return pods;
 };
 
