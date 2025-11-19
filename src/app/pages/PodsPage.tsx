@@ -1367,6 +1367,7 @@ export const PodsPage: React.FC = () => {
                     isOpen={openActionIndex === index}
                     onSelect={() => setOpenActionIndex(null)}
                     onOpenChange={(isOpen: boolean) => setOpenActionIndex(isOpen ? index : null)}
+                    popperProps={{ position: 'right' }}
                     toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
                       <MenuToggle
                         ref={toggleRef}
