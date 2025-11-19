@@ -47,7 +47,18 @@ import {
 } from '@patternfly/react-core';
 import { DragDrop, Draggable, Droppable } from '@patternfly/react-core';
 import { Table, Thead, Tbody, Tr, Th, Td, ThProps } from '@patternfly/react-table';
-import { CheckCircleIcon, FilterIcon, SearchIcon, ColumnsIcon, GripVerticalIcon } from '@patternfly/react-icons';
+import { 
+  CheckCircleIcon, 
+  FilterIcon, 
+  SearchIcon, 
+  ColumnsIcon, 
+  GripVerticalIcon,
+  ExclamationCircleIcon,
+  ExclamationTriangleIcon,
+  InProgressIcon,
+  BanIcon,
+  QuestionCircleIcon
+} from '@patternfly/react-icons';
 import { useSearchParams } from 'react-router-dom';
 
 interface Pod {
@@ -71,7 +82,19 @@ interface Pod {
 const generateMockPods = (): Pod[] => {
   const clusters = ['production-east', 'production-west', 'staging-east', 'staging-west', 'dev-central', 'qa-north'];
   const namespaces = ['default', 'kube-system', 'monitoring', 'logging', 'app-prod', 'app-staging', 'database', 'multicluster-engine'];
-  const statuses = ['Running', 'Running', 'Running', 'Running', 'Completed', 'Error', 'Pending'];
+  
+  // Weighted distribution of statuses (more Running, fewer errors)
+  const statuses = [
+    'Running', 'Running', 'Running', 'Running', 'Running', 'Running', 'Running', 'Running', 'Running', 'Running', // 10x Running
+    'Running', 'Running', 'Running', 'Running', 'Running', 'Running', 'Running', 'Running', 'Running', 'Running', // 20x total
+    'Completed', 'Completed', 'Completed', 'Completed', // 4x Completed
+    'Pending', // 1x Pending
+    'CrashLoopBackOff', // 1x CrashLoopBackOff
+    'Failed', // 1x Failed
+    'Terminating', // 1x Terminating
+    'Unknown', // 1x Unknown
+  ];
+  
   const owners = ['clusterclaims-controller', 'etcd-operator', 'kube-apiserver', 'coredns', 'metrics-server', 'ingress-controller'];
   const nodeNames = ['worker-1', 'worker-2', 'worker-3', 'control-plane-1', 'control-plane-2'];
   const days = ['Nov 7, 2025, 9:49 PM', 'Nov 9, 2025, 3:04 AM', 'Nov 9, 2025, 2:51 AM', 'Nov 7, 2025, 9:40 PM'];
@@ -781,11 +804,30 @@ export const PodsPage: React.FC = () => {
       case 'cluster':
         return pod.cluster;
       case 'status':
+        const getStatusIcon = () => {
+          switch (pod.status) {
+            case 'Running':
+              return <CheckCircleIcon style={{ color: 'var(--pf-v5-global--success-color--100)', fontSize: '14px' }} />;
+            case 'Completed':
+              return <CheckCircleIcon style={{ color: 'var(--pf-v5-global--info-color--100)', fontSize: '14px' }} />;
+            case 'Pending':
+              return <InProgressIcon style={{ color: 'var(--pf-v5-global--warning-color--100)', fontSize: '14px' }} />;
+            case 'CrashLoopBackOff':
+              return <ExclamationCircleIcon style={{ color: 'var(--pf-v5-global--danger-color--100)', fontSize: '14px' }} />;
+            case 'Failed':
+              return <BanIcon style={{ color: 'var(--pf-v5-global--danger-color--100)', fontSize: '14px' }} />;
+            case 'Terminating':
+              return <ExclamationTriangleIcon style={{ color: 'var(--pf-v5-global--warning-color--100)', fontSize: '14px' }} />;
+            case 'Unknown':
+              return <QuestionCircleIcon style={{ color: 'var(--pf-v5-global--disabled-color--100)', fontSize: '14px' }} />;
+            default:
+              return null;
+          }
+        };
+        
         return (
           <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }} style={{ gap: '0.25rem' }}>
-            <FlexItem>
-              {pod.status === 'Running' && <CheckCircleIcon style={{ color: 'var(--pf-v5-global--success-color--100)', fontSize: '14px' }} />}
-            </FlexItem>
+            <FlexItem>{getStatusIcon()}</FlexItem>
             <FlexItem style={{ fontSize: '14px' }}>{pod.status}</FlexItem>
           </Flex>
         );
