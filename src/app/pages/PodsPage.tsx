@@ -994,8 +994,19 @@ export const PodsPage: React.FC = () => {
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && queryText.trim()) {
                   e.preventDefault();
-                  // Check if it's a label:value pattern
-                  const labelValueMatch = queryText.match(/^(name|cluster|namespace|status|role|pods|memory|cpu|filesystem|instancetype|created):(.+)$/i);
+                  
+                  // Check if it's just a field keyword (ends with : and nothing after)
+                  // If so, don't create a chip, just keep autocomplete open to show values
+                  const fieldKeywordOnly = queryText.match(/^(name|namespace|cluster|status|ready|restarts|owner|node|memory|cpu|created|labels|ipAddress|receivingTraffic):$/i);
+                  
+                  if (fieldKeywordOnly) {
+                    // Don't create a chip - user needs to select a value first
+                    setIsAutocompleteOpen(true);
+                    return;
+                  }
+                  
+                  // Check if it's a complete label:value pattern
+                  const labelValueMatch = queryText.match(/^(name|namespace|cluster|status|ready|restarts|owner|node|memory|cpu|created|labels|ipAddress|receivingTraffic):(.+)$/i);
                   
                   if (labelValueMatch) {
                     const [, label, value] = labelValueMatch;
