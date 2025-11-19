@@ -583,6 +583,14 @@ export const PodsPage: React.FC = () => {
           conditions.push(pod.node.toLowerCase().includes(chip.value.toLowerCase()));
         } else if (chip.type === 'created') {
           conditions.push(pod.created.toLowerCase().includes(chip.value.toLowerCase()));
+        } else if (chip.type === 'restarts') {
+          conditions.push(compareNumeric(pod.restarts.toString(), chip.value));
+        } else if (chip.type === 'labels') {
+          conditions.push(pod.labels.toLowerCase().includes(chip.value.toLowerCase()));
+        } else if (chip.type === 'ipaddress') {
+          conditions.push(pod.ipAddress.toLowerCase().includes(chip.value.toLowerCase()));
+        } else if (chip.type === 'receivingtraffic') {
+          conditions.push(pod.receivingTraffic.toLowerCase().includes(chip.value.toLowerCase()));
         } else if (chip.type === 'search') {
           // General search - check if it matches any field
           const searchLower = chip.value.toLowerCase();
