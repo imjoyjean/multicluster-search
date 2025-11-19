@@ -183,7 +183,7 @@ export const PodsPage: React.FC = () => {
   
   const [isManageColumnsOpen, setIsManageColumnsOpen] = React.useState(false);
   const [visibleColumns, setVisibleColumns] = React.useState<string[]>(() => {
-    const saved = localStorage.getItem('nodesVisibleColumns');
+    const saved = localStorage.getItem('podsVisibleColumns');
     return saved ? JSON.parse(saved) : defaultColumns;
   });
   const [tempVisibleColumns, setTempVisibleColumns] = React.useState<string[]>(visibleColumns);
@@ -219,7 +219,7 @@ export const PodsPage: React.FC = () => {
   
   const handleSaveColumns = () => {
     setVisibleColumns(tempVisibleColumns);
-    localStorage.setItem('nodesVisibleColumns', JSON.stringify(tempVisibleColumns));
+    localStorage.setItem('podsVisibleColumns', JSON.stringify(tempVisibleColumns));
     setIsManageColumnsOpen(false);
   };
   
