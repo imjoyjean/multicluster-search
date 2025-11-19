@@ -297,6 +297,39 @@ export const PodsPage: React.FC = () => {
   const uniqueStatuses = React.useMemo(() => Array.from(new Set(mockPods.map(n => n.status))), []);
   const uniqueOwners = React.useMemo(() => Array.from(new Set(mockPods.map(n => n.owner))), []);
   const uniqueNodes = React.useMemo(() => Array.from(new Set(mockPods.map(n => n.node))), []);
+  
+  // Calculate counts for each filter option
+  const clusterCounts = React.useMemo(() => {
+    const counts: Record<string, number> = {};
+    uniqueClusters.forEach(cluster => {
+      counts[cluster] = mockPods.filter(pod => pod.cluster === cluster).length;
+    });
+    return counts;
+  }, [uniqueClusters]);
+  
+  const namespaceCounts = React.useMemo(() => {
+    const counts: Record<string, number> = {};
+    uniqueNamespaces.forEach(namespace => {
+      counts[namespace] = mockPods.filter(pod => pod.namespace === namespace).length;
+    });
+    return counts;
+  }, [uniqueNamespaces]);
+  
+  const statusCounts = React.useMemo(() => {
+    const counts: Record<string, number> = {};
+    uniqueStatuses.forEach(status => {
+      counts[status] = mockPods.filter(pod => pod.status === status).length;
+    });
+    return counts;
+  }, [uniqueStatuses]);
+  
+  const ownerCounts = React.useMemo(() => {
+    const counts: Record<string, number> = {};
+    uniqueOwners.forEach(owner => {
+      counts[owner] = mockPods.filter(pod => pod.owner === owner).length;
+    });
+    return counts;
+  }, [uniqueOwners]);
 
   // Add query chip
   const addQueryChip = (type: string, label: string, value: string) => {
@@ -1157,12 +1190,19 @@ export const PodsPage: React.FC = () => {
                   key={cluster}
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <Checkbox
-                    id={`cluster-${cluster}`}
-                    label={cluster}
-                    isChecked={clusterFilter.includes(cluster)}
-                    onChange={(event, checked) => handleClusterFilterChange(cluster, checked)}
-                  />
+                  <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                    <FlexItem>
+                      <Checkbox
+                        id={`cluster-${cluster}`}
+                        label={cluster}
+                        isChecked={clusterFilter.includes(cluster)}
+                        onChange={(event, checked) => handleClusterFilterChange(cluster, checked)}
+                      />
+                    </FlexItem>
+                    <FlexItem>
+                      <Badge isRead>{clusterCounts[cluster]}</Badge>
+                    </FlexItem>
+                  </Flex>
                 </DropdownItem>
               ))}
             </DropdownList>
@@ -1193,12 +1233,19 @@ export const PodsPage: React.FC = () => {
                   key={namespace}
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <Checkbox
-                    id={`namespace-${namespace}`}
-                    label={namespace}
-                    isChecked={namespaceFilter.includes(namespace)}
-                    onChange={(event, checked) => handleNamespaceFilterChange(namespace, checked)}
-                  />
+                  <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                    <FlexItem>
+                      <Checkbox
+                        id={`namespace-${namespace}`}
+                        label={namespace}
+                        isChecked={namespaceFilter.includes(namespace)}
+                        onChange={(event, checked) => handleNamespaceFilterChange(namespace, checked)}
+                      />
+                    </FlexItem>
+                    <FlexItem>
+                      <Badge isRead>{namespaceCounts[namespace]}</Badge>
+                    </FlexItem>
+                  </Flex>
                 </DropdownItem>
               ))}
             </DropdownList>
@@ -1229,12 +1276,19 @@ export const PodsPage: React.FC = () => {
                   key={status}
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <Checkbox
-                    id={`status-${status}`}
-                    label={status}
-                    isChecked={statusFilter.includes(status)}
-                    onChange={(event, checked) => handleStatusFilterChange(status, checked)}
-                  />
+                  <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                    <FlexItem>
+                      <Checkbox
+                        id={`status-${status}`}
+                        label={status}
+                        isChecked={statusFilter.includes(status)}
+                        onChange={(event, checked) => handleStatusFilterChange(status, checked)}
+                      />
+                    </FlexItem>
+                    <FlexItem>
+                      <Badge isRead>{statusCounts[status]}</Badge>
+                    </FlexItem>
+                  </Flex>
                 </DropdownItem>
               ))}
             </DropdownList>
@@ -1265,12 +1319,19 @@ export const PodsPage: React.FC = () => {
                   key={owner}
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <Checkbox
-                    id={`owner-${owner}`}
-                    label={owner}
-                    isChecked={ownerFilter.includes(owner)}
-                    onChange={(event, checked) => handleOwnerFilterChange(owner, checked)}
-                  />
+                  <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                    <FlexItem>
+                      <Checkbox
+                        id={`owner-${owner}`}
+                        label={owner}
+                        isChecked={ownerFilter.includes(owner)}
+                        onChange={(event, checked) => handleOwnerFilterChange(owner, checked)}
+                      />
+                    </FlexItem>
+                    <FlexItem>
+                      <Badge isRead>{ownerCounts[owner]}</Badge>
+                    </FlexItem>
+                  </Flex>
                 </DropdownItem>
               ))}
             </DropdownList>
