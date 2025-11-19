@@ -422,15 +422,14 @@ export const PodsPage: React.FC = () => {
       
       // Add comparison operator examples for numeric fields
       const numericFieldExamples = [
-        { text: 'filesystem:>40', displayText: 'filesystem:>40 (greater than 40%)' },
-        { text: 'memory:>=8', displayText: 'memory:>=8 (8 GiB or more)' },
-        { text: 'cpu:<4', displayText: 'cpu:<4 (less than 4 cores)' },
-        { text: 'pods:>90', displayText: 'pods:>90 (more than 90 pods)' },
+        { text: 'memory:>20', displayText: 'memory:>20 (greater than 20 MiB)' },
+        { text: 'cpu:>=0.05', displayText: 'cpu:>=0.05 (0.05 cores or more)' },
+        { text: 'restarts:>3', displayText: 'restarts:>3 (more than 3 restarts)' },
       ];
       
       const matchingExamples = numericFieldExamples.filter(ex => 
         ex.text.toLowerCase().includes(searchLower) || 
-        (searchLower.length >= 2 && ['filesystem', 'memory', 'cpu', 'pods'].some(field => field.includes(searchLower)))
+        (searchLower.length >= 2 && ['memory', 'cpu', 'restarts'].some(field => field.includes(searchLower)))
       );
       
       if (matchingExamples.length > 0) {
@@ -572,7 +571,7 @@ export const PodsPage: React.FC = () => {
       // Process queryText for label:value patterns
       if (queryText) {
         // Extract all label:value patterns from queryText
-        const labelValueRegex = /(name|cluster|namespace|status|owner|ready|node|memory|cpu|created):([^\s]+)/gi;
+        const labelValueRegex = /(name|cluster|namespace|status|owner|ready|node|memory|cpu|restarts|created):([^\s]+)/gi;
         const matches = [...queryText.matchAll(labelValueRegex)];
         
         if (matches.length > 0) {
@@ -599,6 +598,8 @@ export const PodsPage: React.FC = () => {
               conditions.push(compareNumeric(pod.memory, value));
             } else if (label === 'cpu') {
               conditions.push(compareNumeric(pod.cpu, value));
+            } else if (label === 'restarts') {
+              conditions.push(compareNumeric(pod.restarts.toString(), value));
             } else if (label === 'created') {
               conditions.push(pod.created.toLowerCase().includes(value));
             }
@@ -678,6 +679,10 @@ export const PodsPage: React.FC = () => {
         case 'ready':
           aValue = a.ready;
           bValue = b.ready;
+          break;
+        case 'restarts':
+          aValue = a.restarts;
+          bValue = b.restarts;
           break;
         case 'memory':
           aValue = parseFloat(a.memory.split(' ')[0]) || 0;
@@ -935,7 +940,7 @@ export const PodsPage: React.FC = () => {
             <input
               ref={queryInputRef}
               type="text"
-              placeholder={queryChips.length === 0 ? "Search by name or use filters (e.g., status:Ready filesystem:>40 memory:>=8)" : ""}
+              placeholder={queryChips.length === 0 ? "Search by name or use filters (e.g., status:Running ready:2/2 memory:>20)" : ""}
               value={queryText}
               onChange={(e) => {
                 setQueryText(e.target.value);
