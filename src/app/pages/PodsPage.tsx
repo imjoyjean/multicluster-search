@@ -1095,13 +1095,13 @@ export const PodsPage: React.FC = () => {
                             
                             if (fieldKeywordMatch) {
                               // Just insert the field keyword into the search box and keep autocomplete open
-                              isProgrammaticUpdate.current = true;
                               setQueryText(item.text);
+                              setIsAutocompleteOpen(false); // Close first
+                              // Then reopen after state updates to show the values
                               setTimeout(() => {
-                                isProgrammaticUpdate.current = false;
                                 setIsAutocompleteOpen(true);
                                 queryInputRef.current?.focus();
-                              }, 10);
+                              }, 100);
                             } else {
                               // Check if it's a complete label:value pattern
                               const labelValueMatch = item.text.match(/^(name|namespace|cluster|status|ready|restarts|owner|node|memory|cpu|created|labels|ipAddress|receivingTraffic):(.+)$/i);
