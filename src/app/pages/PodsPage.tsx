@@ -555,136 +555,123 @@ export const PodsPage: React.FC = () => {
     }
   };
 
-  // Filter nodes with AND logic for all filters
+  // Filter pods with OR logic within same filter type, AND logic across different types
   const filteredPods = React.useMemo(() => {
     return mockPods.filter(pod => {
-      // Collect all filter conditions
-      const conditions: boolean[] = [];
+      // Unified filter collection by type
+      const filtersByType: Record<string, string[]> = {};
       
-      // Process query chips (label:value pairs from filter dropdowns)
+      // Helper to add filter values
+      const addFilter = (type: string, value: string) => {
+        if (!filtersByType[type]) {
+          filtersByType[type] = [];
+        }
+        filtersByType[type].push(value.toLowerCase());
+      };
+      
+      // 1. Collect from queryChips (dropdown selections + Enter key)
       queryChips.forEach(chip => {
-        if (chip.type === 'cluster') {
-          conditions.push(pod.cluster.toLowerCase() === chip.value.toLowerCase());
-        } else if (chip.type === 'namespace') {
-          conditions.push(pod.namespace.toLowerCase() === chip.value.toLowerCase());
-        } else if (chip.type === 'status') {
-          conditions.push(pod.status.toLowerCase() === chip.value.toLowerCase());
-        } else if (chip.type === 'owner') {
-          conditions.push(pod.owner.toLowerCase().includes(chip.value.toLowerCase()));
-        } else if (chip.type === 'name') {
-          conditions.push(pod.name.toLowerCase() === chip.value.toLowerCase());
-        } else if (chip.type === 'ready') {
-          conditions.push(pod.ready.toLowerCase().includes(chip.value.toLowerCase()));
-        } else if (chip.type === 'memory') {
-          conditions.push(compareNumeric(pod.memory, chip.value));
-        } else if (chip.type === 'cpu') {
-          conditions.push(compareNumeric(pod.cpu, chip.value));
-        } else if (chip.type === 'node') {
-          conditions.push(pod.node.toLowerCase().includes(chip.value.toLowerCase()));
-        } else if (chip.type === 'created') {
-          conditions.push(pod.created.toLowerCase().includes(chip.value.toLowerCase()));
-        } else if (chip.type === 'restarts') {
-          conditions.push(compareNumeric(pod.restarts.toString(), chip.value));
-        } else if (chip.type === 'labels') {
-          conditions.push(pod.labels.toLowerCase().includes(chip.value.toLowerCase()));
-        } else if (chip.type === 'ipaddress') {
-          conditions.push(pod.ipAddress.toLowerCase().includes(chip.value.toLowerCase()));
-        } else if (chip.type === 'receivingtraffic') {
-          conditions.push(pod.receivingTraffic.toLowerCase().includes(chip.value.toLowerCase()));
-        } else if (chip.type === 'search') {
-          // General search - check if it matches any field
-          const searchLower = chip.value.toLowerCase();
-          const matchesAnyField = 
-            pod.name.toLowerCase().includes(searchLower) ||
-            pod.cluster.toLowerCase().includes(searchLower) ||
-            pod.namespace.toLowerCase().includes(searchLower) ||
-            pod.status.toLowerCase().includes(searchLower) ||
-            pod.owner.toLowerCase().includes(searchLower) ||
-            pod.ready.toLowerCase().includes(searchLower) ||
-            pod.memory.toLowerCase().includes(searchLower) ||
-            pod.cpu.toLowerCase().includes(searchLower) ||
-            pod.node.toLowerCase().includes(searchLower) ||
-            pod.created.toLowerCase().includes(searchLower);
-          conditions.push(matchesAnyField);
+        if (chip.type !== 'search') {
+          addFilter(chip.type, chip.value);
         }
       });
       
-      // Process queryText for label:value patterns
+      // 2. Collect from queryText (typed in search bar)
       if (queryText) {
-        // Extract all label:value patterns from queryText
         const labelValueRegex = /(name|cluster|namespace|status|owner|ready|node|memory|cpu|restarts|created|labels|ipAddress|receivingTraffic):([^\s]+)/gi;
         const matches = [...queryText.matchAll(labelValueRegex)];
+        matches.forEach(match => {
+          addFilter(match[1].toLowerCase(), match[2]);
+        });
+      }
+      
+      // Note: Dropdown selections already create chips, so chips + queryText is our complete filter set
+      // No need to separately process dropdown state arrays
+      
+      // Now apply filters with OR within type, AND across types
+      const conditions: boolean[] = [];
+      
+      Object.entries(filtersByType).forEach(([type, values]) => {
+        if (values.length === 0) return;
         
-        if (matches.length > 0) {
-          // Apply each label:value filter with AND logic
-          matches.forEach(match => {
-            const label = match[1].toLowerCase();
-            const value = match[2].toLowerCase();
-            
-            if (label === 'name') {
-              conditions.push(pod.name.toLowerCase().includes(value));
-            } else if (label === 'cluster') {
-              conditions.push(pod.cluster.toLowerCase().includes(value));
-            } else if (label === 'namespace') {
-              conditions.push(pod.namespace.toLowerCase().includes(value));
-            } else if (label === 'status') {
-              conditions.push(pod.status.toLowerCase().includes(value));
-            } else if (label === 'owner') {
-              conditions.push(pod.owner.toLowerCase().includes(value));
-            } else if (label === 'ready') {
-              conditions.push(pod.ready.toLowerCase().includes(value));
-            } else if (label === 'node') {
-              conditions.push(pod.node.toLowerCase().includes(value));
-            } else if (label === 'memory') {
-              conditions.push(compareNumeric(pod.memory, value));
-            } else if (label === 'cpu') {
-              conditions.push(compareNumeric(pod.cpu, value));
-            } else if (label === 'restarts') {
-              conditions.push(compareNumeric(pod.restarts.toString(), value));
-            } else if (label === 'created') {
-              conditions.push(pod.created.toLowerCase().includes(value));
-            } else if (label === 'labels') {
-              conditions.push(pod.labels.toLowerCase().includes(value));
-            } else if (label === 'ipaddress') {
-              conditions.push(pod.ipAddress.toLowerCase().includes(value));
-            } else if (label === 'receivingtraffic') {
-              conditions.push(pod.receivingTraffic.toLowerCase().includes(value));
-            }
-          });
-        } else {
-          // No label:value pattern, search across all fields with OR logic
-          const searchLower = queryText.toLowerCase();
-          const matchesAnyField = 
+        let matchesAny = false;
+        
+        if (type === 'cluster') {
+          matchesAny = values.some(v => pod.cluster.toLowerCase() === v);
+        } else if (type === 'namespace') {
+          matchesAny = values.some(v => pod.namespace.toLowerCase() === v);
+        } else if (type === 'status') {
+          matchesAny = values.some(v => pod.status.toLowerCase() === v);
+        } else if (type === 'owner') {
+          matchesAny = values.some(v => pod.owner.toLowerCase().includes(v));
+        } else if (type === 'name') {
+          matchesAny = values.some(v => pod.name.toLowerCase().includes(v));
+        } else if (type === 'ready') {
+          matchesAny = values.some(v => pod.ready.toLowerCase().includes(v));
+        } else if (type === 'memory') {
+          matchesAny = values.some(v => compareNumeric(pod.memory, v));
+        } else if (type === 'cpu') {
+          matchesAny = values.some(v => compareNumeric(pod.cpu, v));
+        } else if (type === 'node') {
+          matchesAny = values.some(v => pod.node.toLowerCase().includes(v));
+        } else if (type === 'created') {
+          matchesAny = values.some(v => pod.created.toLowerCase().includes(v));
+        } else if (type === 'restarts') {
+          matchesAny = values.some(v => compareNumeric(pod.restarts.toString(), v));
+        } else if (type === 'labels') {
+          matchesAny = values.some(v => pod.labels.toLowerCase().includes(v));
+        } else if (type === 'ipaddress') {
+          matchesAny = values.some(v => pod.ipAddress.toLowerCase().includes(v));
+        } else if (type === 'receivingtraffic') {
+          matchesAny = values.some(v => pod.receivingTraffic.toLowerCase().includes(v));
+        }
+        
+        conditions.push(matchesAny);
+      });
+      
+      // Handle general search chips (search across all fields)
+      const searchChips = queryChips.filter(chip => chip.type === 'search');
+      if (searchChips.length > 0) {
+        const matchesAnySearch = searchChips.some(chip => {
+          const searchLower = chip.value.toLowerCase();
+          return (
             pod.name.toLowerCase().includes(searchLower) ||
             pod.cluster.toLowerCase().includes(searchLower) ||
             pod.namespace.toLowerCase().includes(searchLower) ||
             pod.status.toLowerCase().includes(searchLower) ||
             pod.owner.toLowerCase().includes(searchLower) ||
             pod.ready.toLowerCase().includes(searchLower) ||
-            pod.restarts.toString().toLowerCase().includes(searchLower) ||
             pod.memory.toLowerCase().includes(searchLower) ||
             pod.cpu.toLowerCase().includes(searchLower) ||
             pod.node.toLowerCase().includes(searchLower) ||
             pod.created.toLowerCase().includes(searchLower) ||
             pod.labels.toLowerCase().includes(searchLower) ||
             pod.ipAddress.toLowerCase().includes(searchLower) ||
-            pod.receivingTraffic.toLowerCase().includes(searchLower);
-          conditions.push(matchesAnyField);
-        }
+            pod.receivingTraffic.toLowerCase().includes(searchLower)
+          );
+        });
+        conditions.push(matchesAnySearch);
       }
       
-      // Apply dropdown filters (multi-select with OR within same type, AND across types)
-      if (clusterFilter.length > 0) {
-        conditions.push(clusterFilter.includes(pod.cluster));
-      }
-      if (namespaceFilter.length > 0) {
-        conditions.push(namespaceFilter.includes(pod.namespace));
-      }
-      if (statusFilter.length > 0) {
-        conditions.push(statusFilter.includes(pod.status));
-      }
-      if (ownerFilter.length > 0) {
-        conditions.push(ownerFilter.some(owner => pod.owner.includes(owner)));
+      // Handle queryText without label:value pattern (general search)
+      if (queryText && !queryText.match(/(name|cluster|namespace|status|owner|ready|node|memory|cpu|restarts|created|labels|ipAddress|receivingTraffic):/i)) {
+        const searchLower = queryText.toLowerCase();
+        const matchesAnyField = 
+          pod.name.toLowerCase().includes(searchLower) ||
+          pod.cluster.toLowerCase().includes(searchLower) ||
+          pod.namespace.toLowerCase().includes(searchLower) ||
+          pod.status.toLowerCase().includes(searchLower) ||
+          pod.owner.toLowerCase().includes(searchLower) ||
+          pod.ready.toLowerCase().includes(searchLower) ||
+          pod.restarts.toString().toLowerCase().includes(searchLower) ||
+          pod.memory.toLowerCase().includes(searchLower) ||
+          pod.cpu.toLowerCase().includes(searchLower) ||
+          pod.node.toLowerCase().includes(searchLower) ||
+          pod.created.toLowerCase().includes(searchLower) ||
+          pod.labels.toLowerCase().includes(searchLower) ||
+          pod.ipAddress.toLowerCase().includes(searchLower) ||
+          pod.receivingTraffic.toLowerCase().includes(searchLower);
+        conditions.push(matchesAnyField);
       }
       
       // AND logic: all conditions must be true
