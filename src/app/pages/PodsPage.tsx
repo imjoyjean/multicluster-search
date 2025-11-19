@@ -1080,7 +1080,7 @@ export const PodsPage: React.FC = () => {
                             e.preventDefault();
                             
                             // Check if it's just a field keyword (ends with : and nothing after)
-                            const fieldKeywordMatch = item.text.match(/^(name|cluster|namespace|status|role|pods|memory|cpu|filesystem|instancetype|created):$/i);
+                            const fieldKeywordMatch = item.text.match(/^(name|namespace|cluster|status|ready|restarts|owner|node|memory|cpu|created|labels|ipAddress|receivingTraffic):$/i);
                             
                             if (fieldKeywordMatch) {
                               // Just insert the field keyword into the search box and keep autocomplete open
@@ -1093,7 +1093,7 @@ export const PodsPage: React.FC = () => {
                               }, 10);
                             } else {
                               // Check if it's a complete label:value pattern
-                              const labelValueMatch = item.text.match(/^(name|cluster|namespace|status|role|pods|memory|cpu|filesystem|instancetype|created):(.+)$/i);
+                              const labelValueMatch = item.text.match(/^(name|namespace|cluster|status|ready|restarts|owner|node|memory|cpu|created|labels|ipAddress|receivingTraffic):(.+)$/i);
                               
                               if (labelValueMatch) {
                                 const [, label, value] = labelValueMatch;
