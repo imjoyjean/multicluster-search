@@ -343,7 +343,7 @@ export const PodsPage: React.FC = () => {
     const sections: Array<{ title: string; items: Array<{ text: string; displayText: string }> }> = [];
     
     // Check if user is typing a filter prefix
-    const filterPrefixMatch = queryText.match(/^(name|namespace|status|ready|owner|node|memory|cpu|created|cluster):/i);
+    const filterPrefixMatch = queryText.match(/^(name|namespace|cluster|status|ready|restarts|owner|node|memory|cpu|created|labels|ipAddress|receivingTraffic):/i);
     
     if (filterPrefixMatch) {
       const filterType = filterPrefixMatch[1].toLowerCase();
@@ -407,10 +407,41 @@ export const PodsPage: React.FC = () => {
           .filter(created => !afterColon || created.toLowerCase().includes(afterColon.toLowerCase()))
           .map(created => ({ text: `created:${created}`, displayText: created }));
         if (matches.length > 0) sections.push({ title: 'Created', items: matches });
+      } else if (filterType === 'restarts') {
+        const restartsValues = Array.from(new Set(mockPods.map(n => n.restarts.toString())));
+        const matches = restartsValues
+          .filter(restarts => !afterColon || restarts.includes(afterColon))
+          .slice(0, 10)
+          .map(restarts => ({ text: `restarts:${restarts}`, displayText: restarts }));
+        if (matches.length > 0) sections.push({ title: 'Restarts', items: matches });
+      } else if (filterType === 'labels') {
+        const labelsValues = Array.from(new Set(mockPods.map(n => n.labels)));
+        const matches = labelsValues
+          .filter(labels => !afterColon || labels.toLowerCase().includes(afterColon.toLowerCase()))
+          .slice(0, 10)
+          .map(labels => ({ text: `labels:${labels}`, displayText: labels }));
+        if (matches.length > 0) sections.push({ title: 'Labels', items: matches });
+      } else if (filterType === 'ipaddress') {
+        const ipValues = Array.from(new Set(mockPods.map(n => n.ipAddress)));
+        const matches = ipValues
+          .filter(ip => !afterColon || ip.toLowerCase().includes(afterColon.toLowerCase()))
+          .slice(0, 10)
+          .map(ip => ({ text: `ipAddress:${ip}`, displayText: ip }));
+        if (matches.length > 0) sections.push({ title: 'IP Address', items: matches });
+      } else if (filterType === 'receivingtraffic') {
+        const trafficValues = Array.from(new Set(mockPods.map(n => n.receivingTraffic)));
+        const matches = trafficValues
+          .filter(traffic => !afterColon || traffic.toLowerCase().includes(afterColon.toLowerCase()))
+          .map(traffic => ({ text: `receivingTraffic:${traffic}`, displayText: traffic }));
+        if (matches.length > 0) sections.push({ title: 'Receiving Traffic', items: matches });
       }
     } else {
       // Regular search - show suggestions for searchable fields
-      const keywords = ['name:', 'namespace:', 'status:', 'ready:', 'owner:', 'node:', 'memory:', 'cpu:', 'created:', 'cluster:'];
+      const keywords = [
+        'name:', 'namespace:', 'cluster:', 'status:', 'ready:', 'restarts:', 
+        'owner:', 'node:', 'memory:', 'cpu:', 'created:', 'labels:', 
+        'ipAddress:', 'receivingTraffic:'
+      ];
       const matchingKeywords = keywords.filter(kw => kw.toLowerCase().includes(searchLower));
       
       if (matchingKeywords.length > 0) {
@@ -571,7 +602,7 @@ export const PodsPage: React.FC = () => {
       // Process queryText for label:value patterns
       if (queryText) {
         // Extract all label:value patterns from queryText
-        const labelValueRegex = /(name|cluster|namespace|status|owner|ready|node|memory|cpu|restarts|created):([^\s]+)/gi;
+        const labelValueRegex = /(name|cluster|namespace|status|owner|ready|node|memory|cpu|restarts|created|labels|ipAddress|receivingTraffic):([^\s]+)/gi;
         const matches = [...queryText.matchAll(labelValueRegex)];
         
         if (matches.length > 0) {
@@ -602,6 +633,12 @@ export const PodsPage: React.FC = () => {
               conditions.push(compareNumeric(pod.restarts.toString(), value));
             } else if (label === 'created') {
               conditions.push(pod.created.toLowerCase().includes(value));
+            } else if (label === 'labels') {
+              conditions.push(pod.labels.toLowerCase().includes(value));
+            } else if (label === 'ipaddress') {
+              conditions.push(pod.ipAddress.toLowerCase().includes(value));
+            } else if (label === 'receivingtraffic') {
+              conditions.push(pod.receivingTraffic.toLowerCase().includes(value));
             }
           });
         } else {
@@ -614,10 +651,14 @@ export const PodsPage: React.FC = () => {
             pod.status.toLowerCase().includes(searchLower) ||
             pod.owner.toLowerCase().includes(searchLower) ||
             pod.ready.toLowerCase().includes(searchLower) ||
+            pod.restarts.toString().toLowerCase().includes(searchLower) ||
             pod.memory.toLowerCase().includes(searchLower) ||
             pod.cpu.toLowerCase().includes(searchLower) ||
             pod.node.toLowerCase().includes(searchLower) ||
-            pod.created.toLowerCase().includes(searchLower);
+            pod.created.toLowerCase().includes(searchLower) ||
+            pod.labels.toLowerCase().includes(searchLower) ||
+            pod.ipAddress.toLowerCase().includes(searchLower) ||
+            pod.receivingTraffic.toLowerCase().includes(searchLower);
           conditions.push(matchesAnyField);
         }
       }
