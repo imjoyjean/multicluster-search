@@ -57,7 +57,8 @@ import {
   ExclamationTriangleIcon,
   InProgressIcon,
   BanIcon,
-  QuestionCircleIcon
+  QuestionCircleIcon,
+  EllipsisVIcon
 } from '@patternfly/react-icons';
 import { useSearchParams } from 'react-router-dom';
 
@@ -206,6 +207,7 @@ export const PodsPage: React.FC = () => {
   const maxColumns = 9;
   
   const [isManageColumnsOpen, setIsManageColumnsOpen] = React.useState(false);
+  const [openActionIndex, setOpenActionIndex] = React.useState<number | null>(null);
   const [visibleColumns, setVisibleColumns] = React.useState<string[]>(() => {
     const saved = localStorage.getItem('podsVisibleColumns');
     return saved ? JSON.parse(saved) : defaultColumns;
@@ -1349,6 +1351,7 @@ export const PodsPage: React.FC = () => {
                   {columnConfig[column].label}
                 </Th>
               ))}
+              <Th />
             </Tr>
           </Thead>
           <Tbody>
@@ -1359,6 +1362,33 @@ export const PodsPage: React.FC = () => {
                     {renderCellContent(node, column)}
                   </Td>
                 ))}
+                <Td isActionCell>
+                  <Dropdown
+                    isOpen={openActionIndex === index}
+                    onSelect={() => setOpenActionIndex(null)}
+                    onOpenChange={(isOpen: boolean) => setOpenActionIndex(isOpen ? index : null)}
+                    toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                      <MenuToggle
+                        ref={toggleRef}
+                        aria-label="Actions"
+                        variant="plain"
+                        onClick={() => setOpenActionIndex(openActionIndex === index ? null : index)}
+                        isExpanded={openActionIndex === index}
+                      >
+                        <EllipsisVIcon />
+                      </MenuToggle>
+                    )}
+                    shouldFocusToggleOnSelect
+                  >
+                    <DropdownList>
+                      <DropdownItem key="edit-labels">Edit labels</DropdownItem>
+                      <DropdownItem key="edit-annotations">Edit annotations</DropdownItem>
+                      <DropdownItem key="edit-pod">Edit Pod</DropdownItem>
+                      <Divider key="separator" />
+                      <DropdownItem key="delete-pod">Delete Pod</DropdownItem>
+                    </DropdownList>
+                  </Dropdown>
+                </Td>
               </Tr>
             ))}
           </Tbody>
