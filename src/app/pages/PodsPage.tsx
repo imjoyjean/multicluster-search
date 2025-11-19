@@ -165,6 +165,7 @@ export const PodsPage: React.FC = () => {
   const columnConfig: Record<string, { label: string; isDefault: boolean; isRequired?: boolean }> = {
     name: { label: 'Name', isDefault: true, isRequired: true },
     namespace: { label: 'Namespace', isDefault: true },
+    cluster: { label: 'Cluster', isDefault: true },
     status: { label: 'Status', isDefault: true },
     ready: { label: 'Ready', isDefault: true },
     restarts: { label: 'Restarts', isDefault: true },
@@ -777,6 +778,8 @@ export const PodsPage: React.FC = () => {
         return pod.name;
       case 'namespace':
         return pod.namespace;
+      case 'cluster':
+        return pod.cluster;
       case 'status':
         return (
           <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }} style={{ gap: '0.25rem' }}>
