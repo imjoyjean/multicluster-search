@@ -334,38 +334,67 @@ export const PodsPage: React.FC = () => {
   const uniqueOwners = React.useMemo(() => Array.from(new Set(mockPods.map(n => n.owner))), []);
   const uniqueNodes = React.useMemo(() => Array.from(new Set(mockPods.map(n => n.node))), []);
   
-  // Calculate counts for each filter option
+  // Calculate counts for each filter option based on currently selected filters (progressive filtering)
+  // Counts update to show what's available within current filter scope
   const clusterCounts = React.useMemo(() => {
     const counts: Record<string, number> = {};
     uniqueClusters.forEach(cluster => {
-      counts[cluster] = mockPods.filter(pod => pod.cluster === cluster).length;
+      // Apply all filters EXCEPT cluster filter
+      const podsInScope = mockPods.filter(pod => {
+        const matchesNamespace = namespaceFilter.length === 0 || namespaceFilter.includes(pod.namespace);
+        const matchesStatus = statusFilter.length === 0 || statusFilter.includes(pod.status);
+        const matchesOwner = ownerFilter.length === 0 || ownerFilter.some(owner => pod.owner.includes(owner));
+        return matchesNamespace && matchesStatus && matchesOwner;
+      });
+      counts[cluster] = podsInScope.filter(pod => pod.cluster === cluster).length;
     });
     return counts;
-  }, [uniqueClusters]);
+  }, [uniqueClusters, namespaceFilter, statusFilter, ownerFilter]);
   
   const namespaceCounts = React.useMemo(() => {
     const counts: Record<string, number> = {};
     uniqueNamespaces.forEach(namespace => {
-      counts[namespace] = mockPods.filter(pod => pod.namespace === namespace).length;
+      // Apply all filters EXCEPT namespace filter
+      const podsInScope = mockPods.filter(pod => {
+        const matchesCluster = clusterFilter.length === 0 || clusterFilter.includes(pod.cluster);
+        const matchesStatus = statusFilter.length === 0 || statusFilter.includes(pod.status);
+        const matchesOwner = ownerFilter.length === 0 || ownerFilter.some(owner => pod.owner.includes(owner));
+        return matchesCluster && matchesStatus && matchesOwner;
+      });
+      counts[namespace] = podsInScope.filter(pod => pod.namespace === namespace).length;
     });
     return counts;
-  }, [uniqueNamespaces]);
+  }, [uniqueNamespaces, clusterFilter, statusFilter, ownerFilter]);
   
   const statusCounts = React.useMemo(() => {
     const counts: Record<string, number> = {};
     uniqueStatuses.forEach(status => {
-      counts[status] = mockPods.filter(pod => pod.status === status).length;
+      // Apply all filters EXCEPT status filter
+      const podsInScope = mockPods.filter(pod => {
+        const matchesCluster = clusterFilter.length === 0 || clusterFilter.includes(pod.cluster);
+        const matchesNamespace = namespaceFilter.length === 0 || namespaceFilter.includes(pod.namespace);
+        const matchesOwner = ownerFilter.length === 0 || ownerFilter.some(owner => pod.owner.includes(owner));
+        return matchesCluster && matchesNamespace && matchesOwner;
+      });
+      counts[status] = podsInScope.filter(pod => pod.status === status).length;
     });
     return counts;
-  }, [uniqueStatuses]);
+  }, [uniqueStatuses, clusterFilter, namespaceFilter, ownerFilter]);
   
   const ownerCounts = React.useMemo(() => {
     const counts: Record<string, number> = {};
     uniqueOwners.forEach(owner => {
-      counts[owner] = mockPods.filter(pod => pod.owner === owner).length;
+      // Apply all filters EXCEPT owner filter
+      const podsInScope = mockPods.filter(pod => {
+        const matchesCluster = clusterFilter.length === 0 || clusterFilter.includes(pod.cluster);
+        const matchesNamespace = namespaceFilter.length === 0 || namespaceFilter.includes(pod.namespace);
+        const matchesStatus = statusFilter.length === 0 || statusFilter.includes(pod.status);
+        return matchesCluster && matchesNamespace && matchesStatus;
+      });
+      counts[owner] = podsInScope.filter(pod => pod.owner === owner).length;
     });
     return counts;
-  }, [uniqueOwners]);
+  }, [uniqueOwners, clusterFilter, namespaceFilter, statusFilter]);
 
   // Add query chip
   const addQueryChip = (type: string, label: string, value: string) => {
